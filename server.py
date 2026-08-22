@@ -8,6 +8,19 @@ from datetime import datetime, date, timedelta
 load_dotenv()
 
 app = Flask(__name__)
+# Always re-read templates/index.html from disk on change (dev convenience),
+# so UI edits are picked up without relying on a full process restart.
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+
+@app.after_request
+def add_no_cache_headers(resp):
+    """Never let the browser cache the UI, so code fixes show up on reload."""
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    return resp
+
 
 NEO_CONSUMER_KEY = os.getenv("NEO_CONSUMER_KEY", "").strip()
 ENVIRONMENT = os.getenv("NEO_ENVIRONMENT", "prod").strip()
@@ -305,6 +318,13 @@ def parse_quote_rows(rows):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/disclaimer")
+def disclaimer():
+    """Static legal page: the app is informational/educational only and is not
+    SEBI-registered investment advice, a trading call, or a recommendation."""
+    return render_template("disclaimer.html")
 
 
 @app.get("/api/status")
