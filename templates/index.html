@@ -1,0 +1,187 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cash-and-Carry Arbitrage Analyzer</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#64748b;--line:#dbe3ee;--blue:#2f6fed;--good:#08783f;--bad:#a61b13;--warn:#8a5b00}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}.wrap{max-width:1280px;margin:auto;padding:26px 16px 50px}
+h1{margin:0 0 6px;font-size:29px}.sub{color:var(--muted);line-height:1.5;margin-bottom:18px}
+.nav{display:flex;gap:8px;margin-bottom:16px}.nav button{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:9px;font-weight:800}.nav .active{background:var(--blue);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 8px 25px rgba(15,23,42,.06);margin-bottom:16px}
+h2{font-size:17px;margin:0 0 14px}.row{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+label{font-size:12px;font-weight:800;display:block;margin:8px 0 6px}select,input{width:100%;padding:10px 11px;border:1px solid #cbd5e1;border-radius:9px;font:inherit}input[readonly]{background:#f8fafc}
+button{border:0;border-radius:9px;padding:10px 14px;font-weight:800;cursor:pointer}.primary{background:var(--blue);color:#fff}.secondary{background:#e9eef6;color:#25324a}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.status{font-size:12px;color:var(--muted);margin-top:8px}.err{color:var(--bad)}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:12px}.kpi{background:#f8fafc;border:1px solid var(--line);border-radius:11px;padding:11px}.kpi small{color:var(--muted)}.kpi b{display:block;font-size:18px;margin-top:4px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.scenario{border:1px solid var(--line);border-radius:12px;padding:13px;margin-top:10px}.scenario.good{background:#e9f8f0;border-color:#a7d9bb}.scenario.bad{background:#fff0ef;border-color:#efb4ae}.scenario.warn{background:#fff8df;border-color:#ecd595}
+.tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#e7edf5;font-size:11px;font-weight:900;margin:6px 0}.metric{display:flex;justify-content:space-between;border-bottom:1px dashed #d9e1eb;padding:7px 0;font-size:12px}.metric:last-child{border:0}
+.tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:950px}.table th,.table td{padding:8px;border-bottom:1px solid var(--line);font-size:12px;text-align:right;white-space:nowrap}.table th:first-child,.table td:first-child{text-align:left}.table th{background:#f8fafc}.badge{display:inline-block;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:900}.gb{background:#d9f3e3;color:#06743b}.yb{background:#fff0ad;color:#805900}.rb{background:#ffe0dd;color:#a61b13}.stocklink{padding:0;background:transparent;color:var(--blue);text-decoration:underline;font:inherit;font-weight:800}.help{display:inline-block;margin-left:3px;color:var(--blue);font-size:11px;cursor:help}
+.note{font-size:11px;color:var(--muted);line-height:1.5}.hidden{display:none}.diag{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:11px;max-height:250px;overflow:auto}
+@media(max-width:950px){.grid,.row{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.row2,.kpis{grid-template-columns:1fr}.wrap{padding:18px 12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Cash-and-Carry Arbitrage Analyzer</h1>
+<div class="sub">Compare buying a stock in cash and selling its futures contract to estimate the potential return after charges and funding cost. Live Kotak Neo market data supplies prices, contract details, open interest and volume when available.</div>
+
+<div class="nav">
+<button id="tabScan" class="active" onclick="showTab('scan')">Opportunity Scanner</button>
+<button id="tabSingle" onclick="showTab('single')">Detailed Analysis</button>
+</div>
+
+<section id="scan">
+<div class="card">
+<h2>Live Stock Futures Scanner</h2>
+<div class="row">
+<div><label>Target annual return (%)</label><input id="scanHurdle" type="number" value="8" step=".01"></div>
+<div><label>Futures contract expiry</label><select id="scanExpiry"><option value="">Front month (per stock)</option></select></div>
+<div><label>Current data source</label><input value="Kotak Neo" readonly></div>
+</div>
+<div class="actions">
+<button class="primary" onclick="runScan()">Scan selected expiry</button>
+<button class="secondary" onclick="loadStocks()">Refresh available stocks and expiries</button>
+<button class="secondary" onclick="runDiagnostics()">Diagnostics</button>
+</div>
+<div id="scanStatus" class="status">Starting…</div>
+</div>
+
+<div class="card">
+<h2>Potential Opportunities</h2>
+<div class="tablewrap">
+<table class="table"><thead><tr>
+<th>Stock <span class="help" title="The NSE trading symbol. Click the name to open its detailed trade analysis." aria-label="Stock explanation">ⓘ</span></th>
+<th>Spot <span class="help" title="The latest cash-market price for one share." aria-label="Spot explanation">ⓘ</span></th>
+<th>Future <span class="help" title="The latest price of the selected futures contract, quoted per share." aria-label="Future explanation">ⓘ</span></th>
+<th>Expiry <span class="help" title="The date on which the futures contract expires and is settled." aria-label="Expiry explanation">ⓘ</span></th>
+<th>Lot <span class="help" title="Number of shares in one futures contract. The analysis is for one lot." aria-label="Lot explanation">ⓘ</span></th>
+<th>Basis <span class="help" title="Future price minus spot price, per share. A positive number means the future trades above cash." aria-label="Basis explanation">ⓘ</span></th>
+<th>Basis % <span class="help" title="Basis expressed as a percentage of the spot price." aria-label="Basis percentage explanation">ⓘ</span></th>
+<th>Days <span class="help" title="Calendar days from the chosen trade date to contract expiry." aria-label="Days explanation">ⓘ</span></th>
+<th>Gross Ann. <span class="help" title="The basis annualised before charges, dividends, and funding opportunity cost." aria-label="Gross annualised return explanation">ⓘ</span></th>
+<th>Estimated Taxes &amp; Exchange Charges <span class="help" title="Estimated statutory and NSE charges for cash buy/sell and futures sell/buy. Brokerage is ₹0; DP or other broker-specific charges are excluded." aria-label="Estimated taxes and exchange charges explanation">ⓘ</span></th>
+<th>Net Ann. (FD) <span class="help" title="Estimated annualised return after charges, the entered dividend assumption, and FD opportunity cost." aria-label="Net annualised return explanation">ⓘ</span></th>
+<th>OI <span class="help" title="Open interest: the number of futures contracts still open. Higher OI can indicate a more active contract. A dash means no value was returned." aria-label="Open interest explanation">ⓘ</span></th>
+<th>Volume <span class="help" title="Number of contracts or shares traded during the session, when supplied by the quote feed. A dash means no value was returned." aria-label="Volume explanation">ⓘ</span></th>
+<th>Signal <span class="help" title="GOOD: profitable and meets your net-return hurdle. WATCH: profitable but below the hurdle. BAD: not economically profitable or lacks usable data." aria-label="Signal explanation">ⓘ</span></th>
+</tr></thead><tbody id="scanBody"><tr><td colspan="14">Run scan.</td></tr></tbody></table>
+</div>
+<p class="note">Signals use the same estimated taxes and exchange charges, other-cost input, dividend settings and fixed-deposit rate as Detailed Analysis. GOOD meets the target annual return; WATCH is profitable but below that target; BAD is not economically profitable. The entered dividend assumption is applied to every scanned stock, so set it to 0 unless it is appropriate for the contracts being compared.</p>
+</div>
+</section>
+
+<section id="single" class="hidden">
+<div class="card">
+<h2>Detailed Trade Analysis</h2>
+<div class="row">
+<div><label>Stock with futures contract</label><select id="symbol"><option>Loading…</option></select></div>
+<div><label>Futures contract expiry</label><select id="expiry"><option>—</option></select></div>
+<div><label>Lot size</label><input id="lot" readonly></div>
+</div>
+<div class="kpis">
+<div class="kpi"><small>Cash spot</small><b id="spot">—</b></div>
+<div class="kpi"><small>Future LTP</small><b id="future">—</b></div>
+<div class="kpi"><small>Basis / share</small><b id="basis">—</b></div>
+<div class="kpi"><small>Capital</small><b id="cap">—</b></div>
+<div class="kpi"><small>Days</small><b id="days">—</b></div>
+</div>
+<div id="quoteStatus" class="status">Loading…</div>
+</div>
+
+<div class="grid">
+<div class="card">
+<h2>Your trade assumptions</h2>
+<div class="row2"><div><label>Cash purchase date</label><input id="tradeDate" type="date"></div><div><label>Other costs not included automatically (₹)</label><input id="costs" type="number" value="0" step=".01"></div></div>
+<div class="row2"><div><label>Dividend / share (₹)</label><input id="dividend" type="number" value="0" step=".01"></div><div><label>Dividend ex-date</label><input id="divDate" type="date"></div></div>
+<div class="row2"><div><label>Expected dividend reduction (%)</label><input id="divHaircut" type="number" value="0" step=".01"></div><div><label>Target annual return (%)</label><input id="hurdle" type="number" value="8" step=".01"></div></div>
+<div class="row2"><div><label>Fixed-deposit rate (% per year)</label><input id="fdRate" type="number" value="7" step=".01"></div><div><label>Savings-account rate (% per year)</label><input id="savRate" type="number" value="3" step=".01"></div></div>
+<div class="actions"><button class="primary" onclick="calculate()">Calculate</button><button class="secondary" onclick="refreshQuote()">Refresh quote</button></div>
+<p id="chargeSummary" class="note">Estimated taxes and exchange charges for cash and futures will be calculated from live prices. Brokerage is fixed at ₹0.</p>
+<p class="note">Rates in use: cash-delivery STT 0.10% on each side; stock-futures STT 0.05% on the sell side (from 1 Apr 2026); stamp duty on buy legs; NSE transaction/IPFT and SEBI turnover charges on every leg; and 18% GST on exchange and SEBI charges. DP and other broker-specific charges are not automatic.</p>
+</div>
+
+<div class="card">
+<h2>Estimated Trade Result</h2>
+<div id="fdBox" class="scenario"><h3>Using fixed-deposit alternative</h3><span id="fdTag" class="tag">—</span><div class="metric"><span>Estimated taxes &amp; exchange charges</span><b id="fdCharges">—</b></div><div class="metric"><span>Estimated net profit</span><b id="fdEco">—</b></div><div class="metric"><span>Annualized return</span><b id="fdAnn">—</b></div><div class="metric"><span>Break-even futures price</span><b id="fdMin">—</b></div></div>
+<div id="savBox" class="scenario"><h3>Using savings-account alternative</h3><span id="savTag" class="tag">—</span><div class="metric"><span>Estimated taxes &amp; exchange charges</span><b id="savCharges">—</b></div><div class="metric"><span>Estimated net profit</span><b id="savEco">—</b></div><div class="metric"><span>Annualized return</span><b id="savAnn">—</b></div><div class="metric"><span>Break-even futures price</span><b id="savMin">—</b></div></div>
+</div>
+</div>
+</section>
+
+<div class="card">
+<h2>Market-Data Connection Check</h2>
+<p class="note">The app uses Kotak Neo’s official Python SDK to retrieve live prices, open interest and volume when that information is available.</p>
+<div id="diag" class="diag">No diagnostics run yet.</div>
+</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);let state=null,selectedExpiry=null;
+function numberOrNull(x){if(x===null||x===undefined||x==="")return null;let n=Number(x);return Number.isFinite(n)?n:null}
+function money(x){let n=numberOrNull(x);return n===null?"—":"₹"+n.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function pct(x){let n=numberOrNull(x);return n===null?"—":n.toFixed(2)+"%"}
+function dv(id){return $(id).value?new Date($(id).value+"T00:00:00"):null}
+function today(){$("tradeDate").value=new Date().toISOString().slice(0,10)}
+const CHARGE_RATES={cashStt:.001,cashStamp:.00015,futureStamp:.00002,cashExchange:307/100000000,futureExchange:183/100000000,sebi:.000001,gst:.18};
+function chargeLeg(turnover,exchangeRate,sttRate=0,stampRate=0){let exchange=turnover*exchangeRate,sebi=turnover*CHARGE_RATES.sebi,stt=turnover*sttRate,stamp=turnover*stampRate,gst=(exchange+sebi)*CHARGE_RATES.gst;return{total:exchange+sebi+stt+stamp+gst,rate:exchangeRate+CHARGE_RATES.sebi+sttRate+stampRate+(exchangeRate+CHARGE_RATES.sebi)*CHARGE_RATES.gst,gst}}
+function mandatoryCharges(spot,future,lot,tradeDate){let spotTurnover=spot*lot,futureTurnover=future*lot,futureStt=tradeDate>=new Date("2026-04-01T00:00:00")?.0005:.0002;let cashBuy=chargeLeg(spotTurnover,CHARGE_RATES.cashExchange,CHARGE_RATES.cashStt,CHARGE_RATES.cashStamp),cashSell=chargeLeg(futureTurnover,CHARGE_RATES.cashExchange,CHARGE_RATES.cashStt),futureSell=chargeLeg(futureTurnover,CHARGE_RATES.futureExchange,futureStt),futureBuy=chargeLeg(futureTurnover,CHARGE_RATES.futureExchange,0,CHARGE_RATES.futureStamp);return{cashBuy,cashSell,futureSell,futureBuy,total:cashBuy.total+cashSell.total+futureSell.total+futureBuy.total,gst:cashBuy.gst+cashSell.gst+futureSell.gst+futureBuy.gst,futureNotionalRate:cashSell.rate+futureSell.rate+futureBuy.rate}}
+async function api(u){let r=await fetch(u,{cache:"no-store"}),j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||"API error");return j}
+function showTab(t){$("scan").classList.toggle("hidden",t!=="scan");$("single").classList.toggle("hidden",t!=="single");$("tabScan").classList.toggle("active",t==="scan");$("tabSingle").classList.toggle("active",t==="single")}
+async function openAnalysis(symbol,expiry){showTab("single");selectedExpiry=expiry;let select=$("symbol");if(![...select.options].some(option=>option.value===symbol))await loadStocks();select.value=symbol;await loadQuote(symbol);$("single").scrollIntoView({behavior:"smooth",block:"start"})}
+function loadScanExpiries(stocks){let select=$("scanExpiry"),previous=select.value,dates=[...new Set(stocks.flatMap(s=>(s.futures||[]).map(f=>f.expiry)))].sort();select.innerHTML='<option value="">Front month (per stock)</option>';dates.forEach(d=>{let o=document.createElement("option");o.value=d;o.textContent=d;select.appendChild(o)});select.value=dates.includes(previous)?previous:""}
+async function loadStocks(){
+ try{
+  let j=await api("/api/stocks");let s=$("symbol");s.innerHTML="";
+  (j.stocks||[]).forEach(x=>{let o=document.createElement("option");o.value=x.symbol;o.textContent=x.symbol;s.appendChild(o)});
+  loadScanExpiries(j.stocks||[]);
+  $("scanStatus").textContent=`${j.count} F&O stocks loaded from Kotak Neo.`;
+  if(j.stocks?.length)await loadQuote(j.stocks[0].symbol)
+ }catch(e){$("scanStatus").textContent=e.message;$("quoteStatus").textContent=e.message}
+}
+async function loadQuote(sym){
+ try{
+  $("quoteStatus").textContent="Fetching Kotak Neo quotes…";
+  let j=await api("/api/stock/"+encodeURIComponent(sym));state=j;$("spot").textContent=money(j.spot);
+  let ex=$("expiry");ex.innerHTML="";
+  (j.futures||[]).forEach((f,i)=>{let o=document.createElement("option");o.value=i;o.textContent=f.expiry+" — "+money(f.ltp);ex.appendChild(o)});
+  let expiryIndex=(j.futures||[]).findIndex(f=>f.expiry===selectedExpiry),keptExpiry=expiryIndex>=0;
+  if(expiryIndex<0)expiryIndex=0;
+  if(j.futures?.length){ex.selectedIndex=expiryIndex;setContract(expiryIndex,!keptExpiry&&selectedExpiry!==null)}
+  let selected=j.futures?.[expiryIndex],missing=numberOrNull(j.spot)===null||numberOrNull(selected?.ltp)===null;
+  let expiryNote=!keptExpiry&&selectedExpiry!==null?` • ${selectedExpiry} is not available for ${sym}; showing the first available contract.`:"";
+  $("quoteStatus").textContent=missing?`Updated ${j.updated} • A quote is unavailable for this contract. Refresh or select another expiry.${expiryNote}`:`Updated ${j.updated} • ${j.source}${expiryNote}`;
+ }catch(e){$("quoteStatus").textContent=e.message}
+}
+function setContract(i,keepSelectedExpiry=false){let f=state.futures[Number(i)],spot=numberOrNull(state.spot),lot=numberOrNull(f.lot_size);if(!keepSelectedExpiry)selectedExpiry=f.expiry;$("lot").value=f.lot_size??"";$("future").textContent=money(f.ltp);$("basis").textContent=money(f.basis);$("cap").textContent=money(spot!==null&&lot!==null?spot*lot:null);let td=dv("tradeDate")||new Date(),ed=new Date(f.expiry+"T00:00:00");$("days").textContent=Math.max(0,Math.ceil((ed-td)/86400000));calculate()}
+$("symbol").addEventListener("change",e=>loadQuote(e.target.value));$("expiry").addEventListener("change",e=>setContract(e.target.value));
+["costs","dividend","divHaircut","hurdle","fdRate","savRate","divDate","tradeDate"].forEach(id=>$(id).addEventListener("input",calculate));
+function evaluateTrade(spot,future,lot,expiry,rate){
+ spot=numberOrNull(spot);future=numberOrNull(future);lot=numberOrNull(lot);if(spot===null||future===null||lot===null||spot<=0||future<=0||lot<=0)return null;let cap=spot*lot;
+ let td=dv("tradeDate")||new Date(),ed=new Date(expiry+"T00:00:00"),days=Math.max(1,Math.ceil((ed-td)/86400000));
+ let gross=(future-spot)*lot,additional=Number($("costs").value||0),div=Number($("dividend").value||0),hc=Number($("divHaircut").value||0),dd=dv("divDate"),charges=mandatoryCharges(spot,future,lot,td);
+ let divNet=div>0&&dd&&dd<=ed?div*lot*(1-hc/100):0,totalCost=charges.total+additional,pre=gross+divNet-totalCost,opp=cap*rate/100*days/365,eco=pre-opp,ann=eco/cap*365/days*100;
+ let hurdle=Number($("hurdle").value||0),needEco=cap*hurdle/100*days/365,fixedCost=charges.cashBuy.total+additional,minF=(spot*lot+needEco-divNet+fixedCost)/(lot*(1-charges.futureNotionalRate));
+ return{eco,ann,minF,days,charges,additional}}
+function calc(rate){if(!state||!state.futures.length)return null;let f=state.futures[Number($("expiry").value||0)];return evaluateTrade(state.spot,f.ltp,f.lot_size,f.expiry,rate)}
+function draw(box,tag,s){let h=Number($("hurdle").value||0),good=s.eco>0&&s.ann>=h,mg=s.eco>0&&!good;$(`${box}Box`).className="scenario "+(good?"good":mg?"warn":"bad");$(`${tag}`).textContent=good?"GOOD":mg?"MARGINAL":"BAD"}
+function showChargeSummary(s){let c=s.charges;$("chargeSummary").textContent=`Estimated taxes and exchange charges (brokerage ₹0): cash buy ${money(c.cashBuy.total)} • cash sell ${money(c.cashSell.total)} • futures sell ${money(c.futureSell.total)} • futures buy ${money(c.futureBuy.total)} • total ${money(c.total)} (includes GST ${money(c.gst)}). Cash sell is estimated at the current futures LTP; add DP or other broker-specific costs above if applicable.`}
+function clearDecision(){["fd","sav"].forEach(x=>{$(`${x}Box`).className="scenario";$(`${x}Tag`).textContent="QUOTE UNAVAILABLE";$(`${x}Charges`).textContent="—";$(`${x}Eco`).textContent="—";$(`${x}Ann`).textContent="—";$(`${x}Min`).textContent="—"});$("chargeSummary").textContent="Estimated taxes and exchange charges are shown after valid spot, futures and lot-size data load. Brokerage is fixed at ₹0."}
+function calculate(){if(!state)return;let a=calc(Number($("fdRate").value||0)),b=calc(Number($("savRate").value||0));if(!a||!b){clearDecision();return}showChargeSummary(a);$("fdCharges").textContent=money(a.charges.total);$("fdEco").textContent=money(a.eco);$("fdAnn").textContent=pct(a.ann);$("fdMin").textContent=money(a.minF);draw("fd","fdTag",a);$("savCharges").textContent=money(b.charges.total);$("savEco").textContent=money(b.eco);$("savAnn").textContent=pct(b.ann);$("savMin").textContent=money(b.minF);draw("sav","savTag",b)}
+async function refreshQuote(){if($("symbol").value)await loadQuote($("symbol").value)}
+async function runScan(){
+ try{
+  let expiry=$("scanExpiry").value,label=expiry||"front-month";$("scanStatus").textContent=`Scanning ${label} stock futures via Kotak Neo…`;
+  let j=await api("/api/scan"+(expiry?"?expiry="+encodeURIComponent(expiry):"")),h=Number($("scanHurdle").value||0),fdRate=Number($("fdRate").value||0);
+  let rows=(j.data||[]).map(r=>({r,economics:evaluateTrade(r.spot,r.future,r.lot_size,r.expiry,fdRate)})).sort((a,b)=>(b.economics?.ann??-Infinity)-(a.economics?.ann??-Infinity)),html="";
+  rows.forEach(({r,economics})=>{let sig=!economics?"BAD":economics.eco>0&&economics.ann>=h?"GOOD":economics.eco>0?"WATCH":"BAD",klass=sig==="GOOD"?"gb":sig==="WATCH"?"yb":"rb",args=`${JSON.stringify(r.symbol)},${JSON.stringify(r.expiry)}`;html+=`<tr><td><button type="button" class="stocklink" onclick='openAnalysis(${args})' title="Open ${r.symbol} analysis">${r.symbol}</button></td><td>${money(r.spot)}</td><td>${money(r.future)}</td><td>${r.expiry}</td><td>${r.lot_size||"—"}</td><td>${money(r.basis)}</td><td>${pct(r.basis_pct)}</td><td>${economics?.days??"—"}</td><td>${pct(r.gross_ann)}</td><td>${money(economics?.charges.total)}</td><td>${pct(economics?.ann)}</td><td>${r.oi==null?"—":Number(r.oi).toLocaleString("en-IN")}</td><td>${r.volume==null?"—":Number(r.volume).toLocaleString("en-IN")}</td><td><span class="badge ${klass}">${sig}</span></td></tr>`});
+  $("scanBody").innerHTML=html||'<tr><td colspan="14">No live rows returned for this expiry.</td></tr>';$("scanStatus").textContent=`${j.count} ${label} contracts scanned • signals use FD rate ${pct(fdRate)} and net-return hurdle ${pct(h)} • ${j.updated}`;
+ }catch(e){$("scanStatus").textContent=e.message}
+}
+async function runDiagnostics(){try{let j=await fetch("/api/diagnostics"),x=await j.json();$("diag").textContent=JSON.stringify(x,null,2)}catch(e){$("diag").textContent=e.message}}
+today();loadStocks();
+</script>
+</body>
+</html>
