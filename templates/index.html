@@ -1,187 +1,823 @@
-
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cash-and-Carry Arbitrage Analyzer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#64748b;--line:#dbe3ee;--blue:#2f6fed;--good:#08783f;--bad:#a61b13;--warn:#8a5b00}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}.wrap{max-width:1280px;margin:auto;padding:26px 16px 50px}
-h1{margin:0 0 6px;font-size:29px}.sub{color:var(--muted);line-height:1.5;margin-bottom:18px}
-.nav{display:flex;gap:8px;margin-bottom:16px}.nav button{border:1px solid var(--line);background:#fff;padding:10px 14px;border-radius:9px;font-weight:800}.nav .active{background:var(--blue);color:#fff}
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 8px 25px rgba(15,23,42,.06);margin-bottom:16px}
-h2{font-size:17px;margin:0 0 14px}.row{display:grid;grid-template-columns:repeat(3,1fr);gap:11px}.row2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-label{font-size:12px;font-weight:800;display:block;margin:8px 0 6px}select,input{width:100%;padding:10px 11px;border:1px solid #cbd5e1;border-radius:9px;font:inherit}input[readonly]{background:#f8fafc}
-button{border:0;border-radius:9px;padding:10px 14px;font-weight:800;cursor:pointer}.primary{background:var(--blue);color:#fff}.secondary{background:#e9eef6;color:#25324a}.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
-.status{font-size:12px;color:var(--muted);margin-top:8px}.err{color:var(--bad)}
-.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-top:12px}.kpi{background:#f8fafc;border:1px solid var(--line);border-radius:11px;padding:11px}.kpi small{color:var(--muted)}.kpi b{display:block;font-size:18px;margin-top:4px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.scenario{border:1px solid var(--line);border-radius:12px;padding:13px;margin-top:10px}.scenario.good{background:#e9f8f0;border-color:#a7d9bb}.scenario.bad{background:#fff0ef;border-color:#efb4ae}.scenario.warn{background:#fff8df;border-color:#ecd595}
-.tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#e7edf5;font-size:11px;font-weight:900;margin:6px 0}.metric{display:flex;justify-content:space-between;border-bottom:1px dashed #d9e1eb;padding:7px 0;font-size:12px}.metric:last-child{border:0}
-.tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:950px}.table th,.table td{padding:8px;border-bottom:1px solid var(--line);font-size:12px;text-align:right;white-space:nowrap}.table th:first-child,.table td:first-child{text-align:left}.table th{background:#f8fafc}.badge{display:inline-block;padding:4px 7px;border-radius:999px;font-size:10px;font-weight:900}.gb{background:#d9f3e3;color:#06743b}.yb{background:#fff0ad;color:#805900}.rb{background:#ffe0dd;color:#a61b13}.stocklink{padding:0;background:transparent;color:var(--blue);text-decoration:underline;font:inherit;font-weight:800}.help{display:inline-block;margin-left:3px;color:var(--blue);font-size:11px;cursor:help}
-.note{font-size:11px;color:var(--muted);line-height:1.5}.hidden{display:none}.diag{white-space:pre-wrap;background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:11px;max-height:250px;overflow:auto}
-@media(max-width:950px){.grid,.row{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}@media(max-width:560px){.row2,.kpis{grid-template-columns:1fr}.wrap{padding:18px 12px}}
+:root{
+color-scheme:light;
+--bg:#F7F9FC;--surface:#FFFFFF;--surface-2:#F1F5FA;
+--text:#0F172A;--muted:#475569;--faint:#64748B;
+--line:#E5EAF2;--line-2:#D3DCE9;
+--accent:#2F6FED;--accent-ink:#FFFFFF;--accent-soft:#EDF3FE;
+--good:#0A7C46;--good-bg:#E9F7F0;--good-line:#BFE3CF;
+--warn:#9A5B00;--warn-bg:#FBF1DD;--warn-line:#EBD3A4;
+--bad:#B42318;--bad-bg:#FDECEA;--bad-line:#F3C1BC;
+--up:#0A7C46;--dn:#B42318;
+--r-sm:8px;--r-md:12px;--r-lg:16px;
+--sh-sm:0 1px 2px rgba(16,24,40,.05);
+--sh-md:0 1px 2px rgba(16,24,40,.04),0 8px 20px rgba(16,24,40,.08);
+--ease:160ms ease-out;
+}
+[data-theme="dark"]{
+color-scheme:dark;
+--bg:#0B1120;--surface:#101A2E;--surface-2:#0D1526;
+--text:#E7EDF6;--muted:#9FB0C7;--faint:#7C8DA6;
+--line:#22304B;--line-2:#2E405F;
+--accent:#6C9BFF;--accent-ink:#08101F;--accent-soft:#16264A;
+--good:#3ECF8E;--good-bg:#0E2B1E;--good-line:#1E4A34;
+--warn:#F2B84B;--warn-bg:#2E2310;--warn-line:#4E3D1D;
+--bad:#FF7A6C;--bad-bg:#2E1512;--bad-line:#55281F;
+--up:#3ECF8E;--dn:#FF7A6C;
+--sh-sm:0 1px 2px rgba(0,0,0,.5);
+--sh-md:0 1px 2px rgba(0,0,0,.4),0 8px 20px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 Inter,"Segoe UI",system-ui,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1200px;margin:0 auto;padding:24px 16px 60px}
+h1{margin:0;font-size:23px;font-weight:800;letter-spacing:-.02em}
+h2{font-size:16px;margin:0;font-weight:700;letter-spacing:-.01em}
+h3{font-size:13px;margin:0;font-weight:700}
+.sub{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:64ch}
+.hidden{display:none!important}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input:focus-visible,select:focus-visible{outline:none}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.brand{display:flex;gap:12px;align-items:flex-start}
+.logo{width:42px;height:42px;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;flex:none}
+.top-actions{display:flex;gap:8px;align-items:center;margin-left:auto}
+.live{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:600;color:var(--muted);background:var(--surface);white-space:nowrap}
+.live .dot{width:8px;height:8px;border-radius:50%;background:#94A3B8;flex:none}
+.live.ok .dot{background:var(--up);animation:pulse 2.2s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(62,207,142,.45)}70%{box-shadow:0 0 0 6px rgba(62,207,142,0)}100%{box-shadow:0 0 0 0 rgba(62,207,142,0)}}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:15px;cursor:pointer;transition:background var(--ease),border-color var(--ease)}
+.icon-btn:hover{border-color:var(--line-2);background:var(--surface-2)}
+.howto{border:1px solid var(--line);background:var(--surface);border-radius:var(--r-md);padding:12px 16px;margin-bottom:14px}
+.howto summary{cursor:pointer;font-weight:700;font-size:13px;display:flex;align-items:center;gap:8px;list-style:none;color:var(--muted)}
+.howto summary::-webkit-details-marker{display:none}
+.howto summary::before{content:"▸";display:inline-block;transition:transform var(--ease);font-size:11px}
+.howto[open] summary::before{transform:rotate(90deg)}
+.howto ol{margin:10px 0 2px;padding-left:18px;color:var(--muted);font-size:13.5px}
+.howto li{margin:4px 0}
+.howto b{color:var(--text)}
+.howto p{margin:8px 0 2px;font-size:13.5px;color:var(--muted);line-height:1.6}
+.sumline{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;padding:12px 16px;margin-bottom:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-md);font-size:13px;color:var(--muted)}
+.sumline b{color:var(--text);font-weight:800}
+.sumline .best b{color:var(--up)}
+.sumlk{padding:2px 8px;margin:-2px -8px;background:transparent;border:0;color:var(--accent);font:inherit;font-weight:700;cursor:pointer;border-radius:6px}
+.sumlk:hover{background:var(--accent-soft)}
+.hero-note{display:block;font-size:12.5px;line-height:1.5;color:var(--muted);margin-top:6px;font-weight:500}
+.tabs{display:inline-flex;gap:4px;padding:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;margin-bottom:16px}
+.tabs button{border:0;background:transparent;padding:8px 18px;border-radius:999px;font:inherit;font-weight:700;font-size:14px;color:var(--muted);cursor:pointer;transition:background var(--ease),color var(--ease),box-shadow var(--ease)}
+.tabs button:hover{color:var(--text)}
+.tabs button.active{background:var(--surface);color:var(--text);box-shadow:var(--sh-sm)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;margin-bottom:16px;box-shadow:var(--sh-sm)}
+.card-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.hint{color:var(--faint);font-size:12px}
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.assump .field label{display:flex;align-items:flex-end;min-height:38px}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--line-2);border-radius:10px;background:var(--surface);color:var(--text);font:inherit;transition:border-color var(--ease),box-shadow var(--ease)}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+input[type=number],.table,td,th{font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;border-radius:10px;padding:10px 16px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:background var(--ease),filter var(--ease),border-color var(--ease)}
+.btn:disabled{opacity:.65;cursor:progress}
+.btn.primary{background:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover:not(:disabled){filter:brightness(1.07)}
+.btn.ghost{background:var(--surface);border-color:var(--line-2);color:var(--text)}
+.btn.ghost:hover:not(:disabled){background:var(--surface-2)}
+.spin{width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;display:inline-block;animation:rot .7s linear infinite;flex:none}
+@keyframes rot{to{transform:rotate(360deg)}}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:16px}
+.chips{display:inline-flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line-2);background:var(--surface);color:var(--muted);border-radius:999px;padding:7px 12px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:background var(--ease),color var(--ease),border-color var(--ease)}
+.chip:hover{border-color:var(--line-2);color:var(--text)}
+.chip.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.status{margin-top:12px;font-size:13px;color:var(--muted);min-height:1em}
+.status.err{color:var(--bad)}
+.note{font-size:12.5px;color:var(--muted);line-height:1.6;margin:12px 0 0}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:16px}
+.kpi{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 14px}
+.kpi small{display:block;font-size:11.5px;font-weight:700;color:var(--faint);letter-spacing:.02em}
+.kpi b{display:block;font-size:17px;margin-top:4px;font-weight:800}
+.lotline{margin-top:10px;font-size:12.5px;color:var(--muted)}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:var(--r-md)}
+.table{width:100%;border-collapse:collapse;min-width:760px}
+.table th,.table td{padding:10px 12px;border-bottom:1px solid var(--line);font-size:13px;text-align:right;white-space:nowrap}
+.table th:first-child,.table td:first-child{text-align:left}
+.table th{background:var(--surface-2);font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.table tbody tr{transition:background var(--ease)}
+.table tbody tr:hover{background:var(--surface-2)}
+.table td.l{text-align:left}
+.sk-row td{padding:16px}
+.skel{height:14px;border-radius:6px;background:linear-gradient(90deg,var(--surface-2) 25%,var(--line) 50%,var(--surface-2) 75%);background-size:200% 100%;animation:sh 1.3s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.stocklink{padding:3px 7px;margin:-3px -7px;background:transparent;border:0;color:var(--accent);font:inherit;font-weight:700;cursor:pointer;border-radius:6px}
+.stocklink:hover{background:var(--accent-soft)}
+.col-x{width:44px}
+.xbtn{border:1px solid var(--line);background:var(--surface);width:28px;height:28px;border-radius:8px;cursor:pointer;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;transition:color var(--ease),border-color var(--ease)}
+.xbtn:hover{border-color:var(--line-2);color:var(--text)}
+.chev{display:inline-block;transition:transform var(--ease);font-size:12px}
+.xbtn[aria-expanded="true"] .chev{transform:rotate(180deg)}
+tr.detail>td{padding:0;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.detail-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;padding:12px 14px}
+.detail-grid>div{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:8px 10px;min-width:0}
+.detail-grid small{display:block;font-size:11px;color:var(--faint);font-weight:700}
+.detail-grid b{font-size:13px;margin-top:2px;display:block}
+.sig{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.03em;border:1px solid transparent}
+.s-good{background:var(--good-bg);color:var(--good);border-color:var(--good-line)}
+.s-watch{background:var(--warn-bg);color:var(--warn);border-color:var(--warn-line)}
+.s-bad{background:var(--bad-bg);color:var(--bad);border-color:var(--bad-line)}
+.up{color:var(--up);font-weight:800}
+.dn{color:var(--dn);font-weight:800}
+.empty-cell{padding:30px;text-align:center;color:var(--faint);font-size:13.5px;white-space:normal}
+.combo{position:relative}
+.combo-list{position:absolute;z-index:40;top:calc(100% + 4px);left:0;right:0;margin:0;padding:6px;list-style:none;background:var(--surface);border:1px solid var(--line-2);border-radius:var(--r-md);box-shadow:var(--sh-md);max-height:280px;overflow:auto}
+.combo-list li{padding:8px 10px;border-radius:8px;font-size:13.5px;font-weight:600;cursor:pointer}
+.combo-list li:hover,.combo-list li.sel{background:var(--accent-soft);color:var(--accent)}
+.combo-list li[disabled]{color:var(--faint);cursor:default}
+.adv{margin-top:14px;border-top:1px dashed var(--line-2);padding-top:12px}
+.adv summary,.rates summary,.diag-card summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px;list-style:none}
+.adv summary::-webkit-details-marker,.rates summary::-webkit-details-marker{display:none}
+.adv summary::before,.rates summary::before,.diag-card summary::before{content:"▸";font-size:11px;transition:transform var(--ease);display:inline-block}
+.adv[open] summary::before,.rates[open] summary::before,.diag-card[open] summary::before{transform:rotate(90deg)}
+.adv .row2{margin-top:10px}
+.rates{margin-top:12px}
+.rates summary{font-size:12.5px}
+.charge-box{margin-top:16px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px}
+.charge-box h3{margin-bottom:6px}
+.charge-row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;font-size:13px;border-bottom:1px dashed var(--line)}
+.charge-row span{color:var(--muted)}
+.charge-row b{font-weight:700}
+.charge-row.total{border-bottom:0;font-size:14px;padding-top:10px}
+.charge-row.total b{font-weight:800}
+.charge-box .note{margin-top:10px}
+.hero{display:flex;align-items:stretch;border-radius:var(--r-md);border:1px solid var(--line);background:var(--surface-2);margin-bottom:14px;overflow:hidden}
+.hero-main{flex:1.25;padding:16px 18px;border-right:1px solid var(--line)}
+.hero-main small,.hero-sub small{display:block;font-size:11.5px;font-weight:700;color:var(--faint);letter-spacing:.02em}
+.hero-main b{display:block;font-size:30px;font-weight:800;margin-top:6px;letter-spacing:-.02em}
+.hero-sub{flex:1;padding:16px 14px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;min-width:0}
+.hero-sub:last-child{border-right:0}
+.hero-sub b{display:block;font-size:15px;font-weight:700;margin-top:4px;overflow:hidden;text-overflow:ellipsis}
+.hero.good{border-color:var(--good-line)}
+.hero.warn{border-color:var(--warn-line)}
+.hero.bad{border-color:var(--bad-line)}
+.hero.good .hero-main b{color:var(--up)}
+.hero.warn .hero-main b{color:var(--warn)}
+.hero.bad .hero-main b{color:var(--dn)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.scenario{border:1px solid var(--line);border-radius:var(--r-md);padding:14px;background:var(--surface);transition:background var(--ease),border-color var(--ease)}
+.scenario.good{background:var(--good-bg);border-color:var(--good-line)}
+.scenario.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+.scenario.bad{background:var(--bad-bg);border-color:var(--bad-line)}
+.sc-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.winner{font-size:10.5px;font-weight:800;color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);padding:3px 8px;border-radius:999px;letter-spacing:.04em;white-space:nowrap}
+.metric{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding:7px 0;font-size:12.5px}
+.metric:last-child{border-bottom:0}
+.metric span{color:var(--muted)}
+.metric b{font-weight:700}
+.diag-card{padding:14px 16px}
+.diag{white-space:pre-wrap;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px;font-size:11.5px;max-height:260px;overflow:auto;margin-top:12px;font-family:ui-monospace,Consolas,monospace}
+.diag-card .btn{margin-top:12px}
+.foot{margin-top:6px;font-size:12.5px;color:var(--faint);text-align:center;line-height:1.7}
+.foot b{color:var(--muted);font-weight:700}
+.foot a{color:var(--accent);text-decoration:none;font-weight:700}
+.foot a:hover{text-decoration:underline}
+.toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:100;max-width:340px}
+.toast{background:var(--surface);border:1px solid var(--line-2);border-left:4px solid var(--accent);border-radius:var(--r-md);padding:11px 14px;font-size:13.5px;font-weight:600;box-shadow:var(--sh-md);opacity:0;transform:translateY(8px);transition:opacity var(--ease),transform var(--ease)}
+.toast.show{opacity:1;transform:none}
+.toast.good{border-left-color:var(--up)}
+.toast.bad{border-left-color:var(--dn)}
+@media(max-width:1000px){.row{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(3,1fr)}.detail-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:760px){
+.row,.row2,.grid,.grid2{grid-template-columns:1fr}
+.kpis{grid-template-columns:repeat(2,1fr)}
+.hero{flex-direction:column}
+.hero-main,.hero-sub{border-right:0;border-bottom:1px solid var(--line)}
+.hero-sub:last-child{border-bottom:0}
+.table{min-width:0}
+.table thead{display:none}
+.table,.table tbody{display:block}
+.table tbody tr{display:block;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:10px;padding:8px 12px}
+.table tbody tr:hover{background:var(--surface)}
+.table td{display:flex;justify-content:space-between;align-items:center;gap:12px;border:0;padding:6px 0;white-space:normal}
+.table td::before{content:attr(data-label);font-weight:700;color:var(--muted);font-size:12px}
+.table td.hide-m{display:none}
+.table td.col-x{display:none}
+tr.detail>td{display:block;padding:0;background:transparent;border:0}
+.detail-grid{grid-template-columns:repeat(2,1fr);padding:4px 0 8px}
+.empty-cell{display:block;padding:24px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
 <div class="wrap">
+
+<header class="top">
+<div class="brand">
+<div class="logo" aria-hidden="true">₹</div>
+<div>
 <h1>Cash-and-Carry Arbitrage Analyzer</h1>
-<div class="sub">Compare buying a stock in cash and selling its futures contract to estimate the potential return after charges and funding cost. Live Kotak Neo market data supplies prices, contract details, open interest and volume when available.</div>
-
-<div class="nav">
-<button id="tabScan" class="active" onclick="showTab('scan')">Opportunity Scanner</button>
-<button id="tabSingle" onclick="showTab('single')">Detailed Analysis</button>
+<p class="sub">Estimate the net annualized return of a cash-and-carry trade — buy the stock, sell the future — after taxes, exchange charges and the cost of your capital.</p>
 </div>
+</div>
+<div class="top-actions">
+<span class="live" id="liveBadge"><span class="dot" aria-hidden="true"></span><span id="liveTxt">Kotak Neo</span></span>
+<button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">☾</button>
+</div>
+</header>
 
-<section id="scan">
+<details class="howto" id="howto">
+<summary>How it works</summary>
+<p>Cash-and-carry = buy the stock and sell its future at the same time — you earn the price difference (the basis). This tool shows whether it beats your fixed deposit after taxes, charges and the cost of your capital.</p>
+<ol>
+<li><b>Scan</b> — screen every NSE stock future and rank them by net annualized return after charges.</li>
+<li><b>Analyze</b> — open any stock to see the full trade estimate with your own assumptions.</li>
+<li><b>Decide</b> — compare against a fixed deposit or savings account and check the POSITIVE EDGE / SMALL EDGE / NO EDGE signal.</li>
+</ol>
+</details>
+
+<nav class="tabs" role="tablist" aria-label="Main sections">
+<button id="tabScan" role="tab" aria-selected="true" class="active" onclick="showTab('scan')">Scanner</button>
+<button id="tabSingle" role="tab" aria-selected="false" onclick="showTab('single')">Analyze a stock</button>
+</nav>
+
+<section id="scan" role="tabpanel" aria-label="Scanner">
 <div class="card">
-<h2>Live Stock Futures Scanner</h2>
+<div class="card-head"><h2>Live futures scanner</h2><span class="hint">ranked by net return</span></div>
 <div class="row">
-<div><label>Target annual return (%)</label><input id="scanHurdle" type="number" value="8" step=".01"></div>
-<div><label>Futures contract expiry</label><select id="scanExpiry"><option value="">Front month (per stock)</option></select></div>
-<div><label>Current data source</label><input value="Kotak Neo" readonly></div>
+<div class="field"><label for="scanHurdle">Target annual return (%)</label><input id="scanHurdle" type="number" value="8" step=".01"></div>
+<div class="field"><label for="scanExpiry">Futures expiry</label><select id="scanExpiry"><option value="">Front month (per stock)</option></select></div>
+<div class="field"><label for="scanSort">Sort by</label><select id="scanSort">
+<option value="net-desc">Net return · high → low</option>
+<option value="net-asc">Net return · low → high</option>
+<option value="days">Days to expiry</option>
+<option value="basis">Basis % · high → low</option>
+</select></div>
 </div>
 <div class="actions">
-<button class="primary" onclick="runScan()">Scan selected expiry</button>
-<button class="secondary" onclick="loadStocks()">Refresh available stocks and expiries</button>
-<button class="secondary" onclick="runDiagnostics()">Diagnostics</button>
+<button class="btn primary" id="scanBtn" onclick="runScan()">Scan</button>
+<button class="btn ghost" id="refreshBtn" onclick="refreshData()">Refresh data</button>
+<div class="chips" role="group" aria-label="Filter by signal">
+<button class="chip active" data-f="all" onclick="setFilter('all')">All</button>
+<button class="chip" data-f="good" onclick="setFilter('good')">✓ Positive Edge</button>
+<button class="chip" data-f="watch" onclick="setFilter('watch')">● Small Edge</button>
+<button class="chip" data-f="bad" onclick="setFilter('bad')">✕ No Edge</button>
 </div>
-<div id="scanStatus" class="status">Starting…</div>
+</div>
+<div id="scanStatus" class="status" aria-live="polite">Loading stocks…</div>
 </div>
 
 <div class="card">
-<h2>Potential Opportunities</h2>
+<div class="card-head"><h2>Opportunities</h2><span class="hint" id="scanCount"></span></div>
+<div class="sumline hidden" id="scanSummary" aria-live="polite"></div>
 <div class="tablewrap">
-<table class="table"><thead><tr>
-<th>Stock <span class="help" title="The NSE trading symbol. Click the name to open its detailed trade analysis." aria-label="Stock explanation">ⓘ</span></th>
-<th>Spot <span class="help" title="The latest cash-market price for one share." aria-label="Spot explanation">ⓘ</span></th>
-<th>Future <span class="help" title="The latest price of the selected futures contract, quoted per share." aria-label="Future explanation">ⓘ</span></th>
-<th>Expiry <span class="help" title="The date on which the futures contract expires and is settled." aria-label="Expiry explanation">ⓘ</span></th>
-<th>Lot <span class="help" title="Number of shares in one futures contract. The analysis is for one lot." aria-label="Lot explanation">ⓘ</span></th>
-<th>Basis <span class="help" title="Future price minus spot price, per share. A positive number means the future trades above cash." aria-label="Basis explanation">ⓘ</span></th>
-<th>Basis % <span class="help" title="Basis expressed as a percentage of the spot price." aria-label="Basis percentage explanation">ⓘ</span></th>
-<th>Days <span class="help" title="Calendar days from the chosen trade date to contract expiry." aria-label="Days explanation">ⓘ</span></th>
-<th>Gross Ann. <span class="help" title="The basis annualised before charges, dividends, and funding opportunity cost." aria-label="Gross annualised return explanation">ⓘ</span></th>
-<th>Estimated Taxes &amp; Exchange Charges <span class="help" title="Estimated statutory and NSE charges for cash buy/sell and futures sell/buy. Brokerage is ₹0; DP or other broker-specific charges are excluded." aria-label="Estimated taxes and exchange charges explanation">ⓘ</span></th>
-<th>Net Ann. (FD) <span class="help" title="Estimated annualised return after charges, the entered dividend assumption, and FD opportunity cost." aria-label="Net annualised return explanation">ⓘ</span></th>
-<th>OI <span class="help" title="Open interest: the number of futures contracts still open. Higher OI can indicate a more active contract. A dash means no value was returned." aria-label="Open interest explanation">ⓘ</span></th>
-<th>Volume <span class="help" title="Number of contracts or shares traded during the session, when supplied by the quote feed. A dash means no value was returned." aria-label="Volume explanation">ⓘ</span></th>
-<th>Signal <span class="help" title="GOOD: profitable and meets your net-return hurdle. WATCH: profitable but below the hurdle. BAD: not economically profitable or lacks usable data." aria-label="Signal explanation">ⓘ</span></th>
-</tr></thead><tbody id="scanBody"><tr><td colspan="14">Run scan.</td></tr></tbody></table>
+<table class="table" aria-label="Scanner results">
+<thead><tr>
+<th></th>
+<th>Stock</th>
+<th>Net ann.</th>
+<th>Basis %</th>
+<th>Days</th>
+<th>Spot</th>
+<th>Future</th>
+<th>Signal</th>
+</tr></thead>
+<tbody id="scanBody">
+<tr class="sk-row"><td colspan="8"><div class="skel" style="width:62%"></div></td></tr>
+<tr class="sk-row"><td colspan="8"><div class="skel" style="width:47%"></div></td></tr>
+<tr class="sk-row"><td colspan="8"><div class="skel" style="width:55%"></div></td></tr>
+</tbody>
+</table>
 </div>
-<p class="note">Signals use the same estimated taxes and exchange charges, other-cost input, dividend settings and fixed-deposit rate as Detailed Analysis. GOOD meets the target annual return; WATCH is profitable but below that target; BAD is not economically profitable. The entered dividend assumption is applied to every scanned stock, so set it to 0 unless it is appropriate for the contracts being compared.</p>
+<p class="note">Signals use the same tax & charge estimates, dividend assumptions, other-cost input and fixed-deposit rate as the Analyze view. The dividend assumption is applied to every scanned stock — keep it at 0 unless it fits the contracts you're comparing. Tap <span style="font-weight:700">▾</span> for lot size, charges, OI and volume.</p>
 </div>
 </section>
 
-<section id="single" class="hidden">
+<section id="single" class="hidden" role="tabpanel" aria-label="Analyze a stock">
 <div class="card">
-<h2>Detailed Trade Analysis</h2>
+<div class="card-head"><h2>Detailed trade analysis</h2><span class="hint" id="quoteStatus" aria-live="polite"></span></div>
 <div class="row">
-<div><label>Stock with futures contract</label><select id="symbol"><option>Loading…</option></select></div>
-<div><label>Futures contract expiry</label><select id="expiry"><option>—</option></select></div>
-<div><label>Lot size</label><input id="lot" readonly></div>
+<div class="field">
+<label for="stockInput">Stock with futures contract</label>
+<div class="combo">
+<input id="stockInput" placeholder="Type to search… e.g. RELIANCE" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="stockList" aria-label="Search stocks with futures contracts">
+<ul id="stockList" class="combo-list" role="listbox" hidden></ul>
+<input type="hidden" id="symbol">
+</div>
+</div>
+<div class="field"><label for="expiry">Futures expiry</label><select id="expiry"><option value="">—</option></select></div>
+<div class="field"><label for="tradeDate">Cash purchase date</label><input id="tradeDate" type="date"></div>
 </div>
 <div class="kpis">
 <div class="kpi"><small>Cash spot</small><b id="spot">—</b></div>
 <div class="kpi"><small>Future LTP</small><b id="future">—</b></div>
 <div class="kpi"><small>Basis / share</small><b id="basis">—</b></div>
-<div class="kpi"><small>Capital</small><b id="cap">—</b></div>
-<div class="kpi"><small>Days</small><b id="days">—</b></div>
+<div class="kpi"><small>Capital (1 lot)</small><b id="cap">—</b></div>
+<div class="kpi"><small>Days to expiry</small><b id="days">—</b></div>
 </div>
-<div id="quoteStatus" class="status">Loading…</div>
+<div class="lotline">1 lot = <b id="lot">—</b> shares</div>
 </div>
 
 <div class="grid">
 <div class="card">
-<h2>Your trade assumptions</h2>
-<div class="row2"><div><label>Cash purchase date</label><input id="tradeDate" type="date"></div><div><label>Other costs not included automatically (₹)</label><input id="costs" type="number" value="0" step=".01"></div></div>
-<div class="row2"><div><label>Dividend / share (₹)</label><input id="dividend" type="number" value="0" step=".01"></div><div><label>Dividend ex-date</label><input id="divDate" type="date"></div></div>
-<div class="row2"><div><label>Expected dividend reduction (%)</label><input id="divHaircut" type="number" value="0" step=".01"></div><div><label>Target annual return (%)</label><input id="hurdle" type="number" value="8" step=".01"></div></div>
-<div class="row2"><div><label>Fixed-deposit rate (% per year)</label><input id="fdRate" type="number" value="7" step=".01"></div><div><label>Savings-account rate (% per year)</label><input id="savRate" type="number" value="3" step=".01"></div></div>
-<div class="actions"><button class="primary" onclick="calculate()">Calculate</button><button class="secondary" onclick="refreshQuote()">Refresh quote</button></div>
-<p id="chargeSummary" class="note">Estimated taxes and exchange charges for cash and futures will be calculated from live prices. Brokerage is fixed at ₹0.</p>
-<p class="note">Rates in use: cash-delivery STT 0.10% on each side; stock-futures STT 0.05% on the sell side (from 1 Apr 2026); stamp duty on buy legs; NSE transaction/IPFT and SEBI turnover charges on every leg; and 18% GST on exchange and SEBI charges. DP and other broker-specific charges are not automatic.</p>
+<h2>Your assumptions</h2>
+<p class="hint" style="margin:2px 0 0">Set the benchmarks you're comparing against — results update as you type.</p>
+<div class="row assump" style="margin-top:14px">
+<div class="field"><label for="hurdle">Target annual return (%)</label><input id="hurdle" type="number" value="8" step=".01"></div>
+<div class="field"><label for="fdRate">Fixed-deposit rate (% p.a.)</label><input id="fdRate" type="number" value="7" step=".01"></div>
+<div class="field"><label for="savRate">Savings-account rate (% p.a.)</label><input id="savRate" type="number" value="3" step=".01"></div>
+</div>
+<details class="adv">
+<summary>Trade specifics <span class="hint">optional</span></summary>
+<div class="row2">
+<div class="field"><label for="costs">Other costs (₹, one-off)</label><input id="costs" type="number" value="0" step=".01"></div>
+<div class="field"><label for="dividend">Dividend / share (₹)</label><input id="dividend" type="number" value="0" step=".01"></div>
+</div>
+<div class="row2">
+<div class="field"><label for="divDate">Dividend ex-date</label><input id="divDate" type="date"></div>
+<div class="field"><label for="divHaircut">Expected dividend haircut (%)</label><input id="divHaircut" type="number" value="0" step=".01"></div>
+</div>
+</details>
+<div class="actions">
+<button class="btn primary" id="calcBtn" onclick="calculate()">Calculate</button>
+<button class="btn ghost" id="refBtn" onclick="refreshQuote()">Refresh quote</button>
+</div>
+<div class="charge-box">
+<h3>Estimated taxes & exchange charges</h3>
+<div class="charge-row"><span>Cash buy</span><b id="cBuy">—</b></div>
+<div class="charge-row"><span>Cash sell</span><b id="cSell">—</b></div>
+<div class="charge-row"><span>Futures sell</span><b id="cFSell">—</b></div>
+<div class="charge-row"><span>Futures buy</span><b id="cFBuy">—</b></div>
+<div class="charge-row total"><span>Total <span class="hint">(incl. GST <span id="cGst">—</span>)</span></span><b id="cTotal">—</b></div>
+<p class="note">Brokerage ₹0. Cash sell is estimated at the current futures LTP. Add DP charges or other broker-specific costs under Advanced.</p>
+<details class="rates">
+<summary>Charge rates used</summary>
+<p class="note">Cash-delivery STT 0.10% on each side; stock-futures STT 0.05% on the sell side (from 1 Apr 2026); stamp duty on buy legs; NSE transaction/IPFT and SEBI turnover charges on every leg; 18% GST on exchange + SEBI charges.</p>
+</details>
+</div>
 </div>
 
 <div class="card">
-<h2>Estimated Trade Result</h2>
-<div id="fdBox" class="scenario"><h3>Using fixed-deposit alternative</h3><span id="fdTag" class="tag">—</span><div class="metric"><span>Estimated taxes &amp; exchange charges</span><b id="fdCharges">—</b></div><div class="metric"><span>Estimated net profit</span><b id="fdEco">—</b></div><div class="metric"><span>Annualized return</span><b id="fdAnn">—</b></div><div class="metric"><span>Break-even futures price</span><b id="fdMin">—</b></div></div>
-<div id="savBox" class="scenario"><h3>Using savings-account alternative</h3><span id="savTag" class="tag">—</span><div class="metric"><span>Estimated taxes &amp; exchange charges</span><b id="savCharges">—</b></div><div class="metric"><span>Estimated net profit</span><b id="savEco">—</b></div><div class="metric"><span>Annualized return</span><b id="savAnn">—</b></div><div class="metric"><span>Break-even futures price</span><b id="savMin">—</b></div></div>
+<div class="card-head"><h2>Estimated trade result</h2><span class="sig" id="resultTag">—</span></div>
+<div class="hero" id="heroBox">
+<div class="hero-main">
+<small>Net annualized return · vs fixed deposit</small>
+<b id="heroAnn">—</b>
+<span class="hero-note" id="heroNote"></span>
+</div>
+<div class="hero-sub">
+<small>Est. net profit</small>
+<b id="heroEco">—</b>
+</div>
+<div class="hero-sub">
+<small>Break-even future</small>
+<b id="heroMin">—</b>
+</div>
+</div>
+<div class="grid2">
+<div id="fdBox" class="scenario">
+<div class="sc-head"><h3>vs Fixed deposit</h3><span class="winner" id="fdWin" hidden>BETTER</span></div>
+<span class="sig" id="fdTag">—</span>
+<div class="metric"><span>Net profit</span><b id="fdEco">—</b></div>
+<div class="metric"><span>Annualized return</span><b id="fdAnn">—</b></div>
+<div class="metric"><span>Charges (1 lot)</span><b id="fdCharges">—</b></div>
+<div class="metric"><span>Break-even future</span><b id="fdMin">—</b></div>
+</div>
+<div id="savBox" class="scenario">
+<div class="sc-head"><h3>vs Savings account</h3><span class="winner" id="savWin" hidden>BETTER</span></div>
+<span class="sig" id="savTag">—</span>
+<div class="metric"><span>Net profit</span><b id="savEco">—</b></div>
+<div class="metric"><span>Annualized return</span><b id="savAnn">—</b></div>
+<div class="metric"><span>Charges (1 lot)</span><b id="savCharges">—</b></div>
+<div class="metric"><span>Break-even future</span><b id="savMin">—</b></div>
+</div>
+</div>
 </div>
 </div>
 </section>
 
-<div class="card">
-<h2>Market-Data Connection Check</h2>
-<p class="note">The app uses Kotak Neo’s official Python SDK to retrieve live prices, open interest and volume when that information is available.</p>
+<details class="card diag-card">
+<summary>Market-data diagnostics <span class="hint">technical</span></summary>
+<button class="btn ghost" onclick="runDiagnostics()">Run diagnostics</button>
 <div id="diag" class="diag">No diagnostics run yet.</div>
-</div>
+</details>
+
+<footer class="foot">
+Informational & educational tool only — <b>not</b> investment advice, trading calls, or buy/sell recommendations · Not a SEBI-registered adviser.<br>
+Verify live quotes, charges & settlement rules before trading · <a href="/disclaimer" target="_blank" rel="noopener">Full disclaimer →</a>
+</footer>
 </div>
 
+<div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+
 <script>
-const $=id=>document.getElementById(id);let state=null,selectedExpiry=null;
+const $=id=>document.getElementById(id);
+let state=null,selectedExpiry=null;
+let stockList=[];
+let scanRows=[];
+let scanFilter="all";
+let comboIdx=0;
+
+/* ---------- formatting helpers ---------- */
 function numberOrNull(x){if(x===null||x===undefined||x==="")return null;let n=Number(x);return Number.isFinite(n)?n:null}
 function money(x){let n=numberOrNull(x);return n===null?"—":"₹"+n.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2})}
 function pct(x){let n=numberOrNull(x);return n===null?"—":n.toFixed(2)+"%"}
+function signedPct(x){let n=numberOrNull(x);if(n===null)return "—";let v=Math.abs(n).toFixed(2)+"%";return n>=0?('<span class="up">▲ '+v+'</span>'):'<span class="dn">▼ '+v+'</span>'}
 function dv(id){return $(id).value?new Date($(id).value+"T00:00:00"):null}
-function today(){$("tradeDate").value=new Date().toISOString().slice(0,10)}
+function setToday(){$("tradeDate").value=new Date().toISOString().slice(0,10)}
+
+/* ---------- mandatory charges (unchanged math) ---------- */
 const CHARGE_RATES={cashStt:.001,cashStamp:.00015,futureStamp:.00002,cashExchange:307/100000000,futureExchange:183/100000000,sebi:.000001,gst:.18};
 function chargeLeg(turnover,exchangeRate,sttRate=0,stampRate=0){let exchange=turnover*exchangeRate,sebi=turnover*CHARGE_RATES.sebi,stt=turnover*sttRate,stamp=turnover*stampRate,gst=(exchange+sebi)*CHARGE_RATES.gst;return{total:exchange+sebi+stt+stamp+gst,rate:exchangeRate+CHARGE_RATES.sebi+sttRate+stampRate+(exchangeRate+CHARGE_RATES.sebi)*CHARGE_RATES.gst,gst}}
 function mandatoryCharges(spot,future,lot,tradeDate){let spotTurnover=spot*lot,futureTurnover=future*lot,futureStt=tradeDate>=new Date("2026-04-01T00:00:00")?.0005:.0002;let cashBuy=chargeLeg(spotTurnover,CHARGE_RATES.cashExchange,CHARGE_RATES.cashStt,CHARGE_RATES.cashStamp),cashSell=chargeLeg(futureTurnover,CHARGE_RATES.cashExchange,CHARGE_RATES.cashStt),futureSell=chargeLeg(futureTurnover,CHARGE_RATES.futureExchange,futureStt),futureBuy=chargeLeg(futureTurnover,CHARGE_RATES.futureExchange,0,CHARGE_RATES.futureStamp);return{cashBuy,cashSell,futureSell,futureBuy,total:cashBuy.total+cashSell.total+futureSell.total+futureBuy.total,gst:cashBuy.gst+cashSell.gst+futureSell.gst+futureBuy.gst,futureNotionalRate:cashSell.rate+futureSell.rate+futureBuy.rate}}
+
+/* ---------- api ---------- */
 async function api(u){let r=await fetch(u,{cache:"no-store"}),j=await r.json();if(!r.ok||!j.ok)throw Error(j.error||"API error");return j}
-function showTab(t){$("scan").classList.toggle("hidden",t!=="scan");$("single").classList.toggle("hidden",t!=="single");$("tabScan").classList.toggle("active",t==="scan");$("tabSingle").classList.toggle("active",t==="single")}
-async function openAnalysis(symbol,expiry){showTab("single");selectedExpiry=expiry;let select=$("symbol");if(![...select.options].some(option=>option.value===symbol))await loadStocks();select.value=symbol;await loadQuote(symbol);$("single").scrollIntoView({behavior:"smooth",block:"start"})}
-function loadScanExpiries(stocks){let select=$("scanExpiry"),previous=select.value,dates=[...new Set(stocks.flatMap(s=>(s.futures||[]).map(f=>f.expiry)))].sort();select.innerHTML='<option value="">Front month (per stock)</option>';dates.forEach(d=>{let o=document.createElement("option");o.value=d;o.textContent=d;select.appendChild(o)});select.value=dates.includes(previous)?previous:""}
-async function loadStocks(){
- try{
-  let j=await api("/api/stocks");let s=$("symbol");s.innerHTML="";
-  (j.stocks||[]).forEach(x=>{let o=document.createElement("option");o.value=x.symbol;o.textContent=x.symbol;s.appendChild(o)});
-  loadScanExpiries(j.stocks||[]);
-  $("scanStatus").textContent=`${j.count} F&O stocks loaded from Kotak Neo.`;
-  if(j.stocks?.length)await loadQuote(j.stocks[0].symbol)
- }catch(e){$("scanStatus").textContent=e.message;$("quoteStatus").textContent=e.message}
+
+/* ---------- theme ---------- */
+function initTheme(){let saved=null;try{saved=localStorage.getItem("caa:theme")}catch(e){}let t=saved||((window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light");applyTheme(t)}
+function applyTheme(t){document.documentElement.dataset.theme=t;$("themeBtn").textContent=t==="dark"?"☀":"☾";try{localStorage.setItem("caa:theme",t)}catch(e){}}
+function toggleTheme(){applyTheme(document.documentElement.dataset.theme==="dark"?"light":"dark")}
+
+/* ---------- feedback ---------- */
+function toast(msg,kind){
+const box=$("toasts");const t=document.createElement("div");
+t.className="toast "+(kind||"info");t.textContent=msg;
+box.appendChild(t);
+requestAnimationFrame(()=>t.classList.add("show"));
+setTimeout(()=>{t.classList.remove("show");setTimeout(()=>t.remove(),280);},4500);
 }
+function busy(btn,on,label){
+if(!btn)return;
+btn.disabled=on;
+if(on){btn.dataset.orig=btn.innerHTML;btn.innerHTML='<span class="spin" aria-hidden="true"></span><span>'+(label||"Working…")+'</span>';}
+else if(btn.dataset.orig){btn.innerHTML=btn.dataset.orig;}
+}
+function setUpdated(ts){let e=$("liveTxt");if(ts)e.textContent="Kotak Neo · "+new Date(ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});else e.textContent="Kotak Neo";$("liveBadge").classList.toggle("ok",!!ts)}
+
+/* ---------- persistence ---------- */
+const SETTING_IDS=["tradeDate","costs","dividend","divDate","divHaircut","hurdle","fdRate","savRate","scanHurdle","scanExpiry"];
+function saveSettings(){try{let o={};SETTING_IDS.forEach(id=>{if($(id))o[id]=$(id).value});localStorage.setItem("caa:settings",JSON.stringify(o))}catch(e){}}
+function restoreSettings(){try{let o=JSON.parse(localStorage.getItem("caa:settings")||"null");if(!o)return;SETTING_IDS.forEach(id=>{if(o[id]!==undefined&&$(id))$(id).value=o[id]})}catch(e){}}
+function saveLast(sym,exp){try{localStorage.setItem("caa:last",JSON.stringify({s:sym,e:exp}))}catch(e){}}
+function loadLast(){try{return JSON.parse(localStorage.getItem("caa:last")||"null")}catch(e){return null}}
+function saveScanPrefs(){try{localStorage.setItem("caa:scan",JSON.stringify({f:scanFilter,sort:$("scanSort").value}))}catch(e){}}
+function restoreScanPrefs(){try{let o=JSON.parse(localStorage.getItem("caa:scan")||"null");if(!o)return;if(o.f){scanFilter=o.f;applyFilterUI(o.f)}if(o.sort)$("scanSort").value=o.sort}catch(e){}}
+
+/* ---------- tabs ---------- */
+function showTab(t){
+$("scan").classList.toggle("hidden",t!=="scan");
+$("single").classList.toggle("hidden",t!=="single");
+$("tabScan").classList.toggle("active",t==="scan");
+$("tabSingle").classList.toggle("active",t==="single");
+$("tabScan").setAttribute("aria-selected",String(t==="scan"));
+$("tabSingle").setAttribute("aria-selected",String(t==="single"));
+try{localStorage.setItem("caa:tab",t)}catch(e){}
+}
+
+/* ---------- stock combobox ---------- */
+function renderCombo(filter){
+const f=(filter||"").trim().toUpperCase();
+const list=stockList.filter(s=>!f||s.toUpperCase().includes(f));
+const el=$("stockList");
+comboIdx=0;
+if(!stockList.length){el.innerHTML='<li disabled>Loading stocks…</li>';}
+else if(!list.length){el.innerHTML='<li disabled>No match</li>';}
+else{el.innerHTML=list.slice(0,80).map((s,i)=>'<li role="option" data-sym="'+s+'"'+(i===0?' class="sel"':'')+'>'+s+'</li>').join("");}
+el.hidden=false;
+$("stockInput").setAttribute("aria-expanded","true");
+}
+function closeCombo(){let el=$("stockList");el.hidden=true;$("stockInput").setAttribute("aria-expanded","false")}
+function selectStock(sym,force){
+$("symbol").value=sym;$("stockInput").value=sym;
+closeCombo();
+if(!force&&state&&state.symbol===sym)return;
+loadQuote(sym);
+}
+function initCombo(){
+let input=$("stockInput");
+input.addEventListener("input",()=>renderCombo(input.value));
+input.addEventListener("focus",()=>renderCombo(input.value));
+input.addEventListener("blur",()=>setTimeout(closeCombo,160));
+input.addEventListener("keydown",e=>{
+let items=[].slice.call($("stockList").children).filter(li=>!li.disabled);
+if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+e.preventDefault();
+if($("stockList").hidden)renderCombo(input.value);
+items=[].slice.call($("stockList").children).filter(li=>!li.disabled);
+if(!items.length)return;
+comboIdx=Math.max(0,Math.min(items.length-1,comboIdx+(e.key==="ArrowDown"?1:-1)));
+[].slice.call($("stockList").children).forEach(li=>li.classList.toggle("sel",items.indexOf(li)===comboIdx));
+items[comboIdx].scrollIntoView({block:"nearest"});
+}else if(e.key==="Enter"){
+e.preventDefault();
+if(items[comboIdx])selectStock(items[comboIdx].dataset.sym);else closeCombo();
+}else if(e.key==="Escape"){closeCombo();input.blur();}
+});
+$("stockList").addEventListener("mousedown",e=>{
+let li=e.target.closest("li[data-sym]");
+if(li){e.preventDefault();selectStock(li.dataset.sym);}
+});
+}
+
+/* ---------- stocks ---------- */
+function loadScanExpiries(stocks){
+let select=$("scanExpiry");
+let preferred="";try{let o=JSON.parse(localStorage.getItem("caa:settings")||"null");preferred=o&&o.scanExpiry?o.scanExpiry:""}catch(e){}
+let dates=[].concat.apply([],stocks.map(s=>(s.futures||[]).map(f=>f.expiry)));
+dates=[...new Set(dates)].sort();
+select.innerHTML="";
+let o0=document.createElement("option");o0.value="";o0.textContent="Front month (per stock)";select.appendChild(o0);
+dates.forEach(d=>{let o=document.createElement("option");o.value=d;o.textContent=d;select.appendChild(o)});
+select.value=dates.indexOf(preferred)>=0?preferred:"";
+}
+async function loadStocks(opts){
+opts=opts||{};
+try{
+if(!opts.silent){$("scanStatus").textContent="Loading stock universe from Kotak Neo…";$("scanStatus").classList.remove("err");}
+let j=await api("/api/stocks");
+stockList=(j.stocks||[]).map(x=>x.symbol);
+loadScanExpiries(j.stocks||[]);
+$("scanStatus").textContent=stockList.length+" F&O stocks loaded from Kotak Neo.";
+if(!opts.silent)toast(stockList.length+" stocks loaded","good");
+if(!opts.noSelect){
+let last=loadLast();
+let target=(last&&last.s&&stockList.indexOf(last.s)>=0)?last.s:(stockList[0]||null);
+if(target)selectStock(target,opts.forceSelect);
+}
+}catch(e){
+$("scanStatus").textContent=e.message;
+$("scanStatus").classList.add("err");
+toast(e.message,"bad");
+}
+}
+async function refreshData(){
+let btn=$("refreshBtn");
+busy(btn,true,"Loading…");
+try{await loadStocks({forceSelect:true})}finally{busy(btn,false)}
+}
+
+/* ---------- quote ---------- */
 async function loadQuote(sym){
- try{
-  $("quoteStatus").textContent="Fetching Kotak Neo quotes…";
-  let j=await api("/api/stock/"+encodeURIComponent(sym));state=j;$("spot").textContent=money(j.spot);
-  let ex=$("expiry");ex.innerHTML="";
-  (j.futures||[]).forEach((f,i)=>{let o=document.createElement("option");o.value=i;o.textContent=f.expiry+" — "+money(f.ltp);ex.appendChild(o)});
-  let expiryIndex=(j.futures||[]).findIndex(f=>f.expiry===selectedExpiry),keptExpiry=expiryIndex>=0;
-  if(expiryIndex<0)expiryIndex=0;
-  if(j.futures?.length){ex.selectedIndex=expiryIndex;setContract(expiryIndex,!keptExpiry&&selectedExpiry!==null)}
-  let selected=j.futures?.[expiryIndex],missing=numberOrNull(j.spot)===null||numberOrNull(selected?.ltp)===null;
-  let expiryNote=!keptExpiry&&selectedExpiry!==null?` • ${selectedExpiry} is not available for ${sym}; showing the first available contract.`:"";
-  $("quoteStatus").textContent=missing?`Updated ${j.updated} • A quote is unavailable for this contract. Refresh or select another expiry.${expiryNote}`:`Updated ${j.updated} • ${j.source}${expiryNote}`;
- }catch(e){$("quoteStatus").textContent=e.message}
+try{
+$("quoteStatus").textContent="Fetching Kotak Neo quote…";
+let j=await api("/api/stock/"+encodeURIComponent(sym));
+state=j;
+$("spot").textContent=money(j.spot);
+let ex=$("expiry");ex.innerHTML="";
+(j.futures||[]).forEach((f,i)=>{let o=document.createElement("option");o.value=i;o.textContent=f.expiry+" — "+money(f.ltp);ex.appendChild(o)});
+if(!(j.futures&&j.futures.length)){
+["future","basis","cap","days"].forEach(id=>$(id).textContent="—");
+$("lot").textContent="—";
+clearDecision();
+$("quoteStatus").textContent="Updated "+j.updated+" · no futures contracts found for "+sym;
+return;
 }
-function setContract(i,keepSelectedExpiry=false){let f=state.futures[Number(i)],spot=numberOrNull(state.spot),lot=numberOrNull(f.lot_size);if(!keepSelectedExpiry)selectedExpiry=f.expiry;$("lot").value=f.lot_size??"";$("future").textContent=money(f.ltp);$("basis").textContent=money(f.basis);$("cap").textContent=money(spot!==null&&lot!==null?spot*lot:null);let td=dv("tradeDate")||new Date(),ed=new Date(f.expiry+"T00:00:00");$("days").textContent=Math.max(0,Math.ceil((ed-td)/86400000));calculate()}
-$("symbol").addEventListener("change",e=>loadQuote(e.target.value));$("expiry").addEventListener("change",e=>setContract(e.target.value));
-["costs","dividend","divHaircut","hurdle","fdRate","savRate","divDate","tradeDate"].forEach(id=>$(id).addEventListener("input",calculate));
+let expiryIndex=(j.futures||[]).findIndex(f=>f.expiry===selectedExpiry),keptExpiry=expiryIndex>=0;
+if(expiryIndex<0)expiryIndex=0;
+ex.selectedIndex=expiryIndex;
+setContract(expiryIndex,!keptExpiry&&selectedExpiry!==null);
+let selected=j.futures[expiryIndex];
+let missing=numberOrNull(j.spot)===null||numberOrNull(selected&&selected.ltp)===null;
+let expiryNote=!keptExpiry&&selectedExpiry!==null?" · "+selectedExpiry+" not available for "+sym+" — showing first contract.":"";
+$("quoteStatus").textContent=missing?("Updated "+j.updated+" · quote unavailable for this contract. Refresh or pick another expiry."+expiryNote):("Updated "+j.updated+" · "+j.source+expiryNote);
+saveLast(sym,selectedExpiry);
+setUpdated(j.updated);
+}catch(e){
+$("quoteStatus").textContent=e.message;
+toast(e.message,"bad");
+}
+}
+function setContract(i,keepSelectedExpiry){
+let f=state.futures[Number(i)],spot=numberOrNull(state.spot),lot=numberOrNull(f.lot_size);
+if(!keepSelectedExpiry)selectedExpiry=f.expiry;
+$("lot").textContent=(f.lot_size===null||f.lot_size===undefined)?"—":f.lot_size.toLocaleString("en-IN");
+$("future").textContent=money(f.ltp);
+$("basis").textContent=money(f.basis);
+$("cap").textContent=money(spot!==null&&lot!==null?spot*lot:null);
+let td=dv("tradeDate")||new Date(),ed=new Date(f.expiry+"T00:00:00");
+$("days").textContent=Math.max(0,Math.ceil((ed-td)/86400000));
+calculate();
+}
+
+/* ---------- trade evaluation (unchanged math) ---------- */
 function evaluateTrade(spot,future,lot,expiry,rate){
- spot=numberOrNull(spot);future=numberOrNull(future);lot=numberOrNull(lot);if(spot===null||future===null||lot===null||spot<=0||future<=0||lot<=0)return null;let cap=spot*lot;
- let td=dv("tradeDate")||new Date(),ed=new Date(expiry+"T00:00:00"),days=Math.max(1,Math.ceil((ed-td)/86400000));
- let gross=(future-spot)*lot,additional=Number($("costs").value||0),div=Number($("dividend").value||0),hc=Number($("divHaircut").value||0),dd=dv("divDate"),charges=mandatoryCharges(spot,future,lot,td);
- let divNet=div>0&&dd&&dd<=ed?div*lot*(1-hc/100):0,totalCost=charges.total+additional,pre=gross+divNet-totalCost,opp=cap*rate/100*days/365,eco=pre-opp,ann=eco/cap*365/days*100;
- let hurdle=Number($("hurdle").value||0),needEco=cap*hurdle/100*days/365,fixedCost=charges.cashBuy.total+additional,minF=(spot*lot+needEco-divNet+fixedCost)/(lot*(1-charges.futureNotionalRate));
- return{eco,ann,minF,days,charges,additional}}
-function calc(rate){if(!state||!state.futures.length)return null;let f=state.futures[Number($("expiry").value||0)];return evaluateTrade(state.spot,f.ltp,f.lot_size,f.expiry,rate)}
-function draw(box,tag,s){let h=Number($("hurdle").value||0),good=s.eco>0&&s.ann>=h,mg=s.eco>0&&!good;$(`${box}Box`).className="scenario "+(good?"good":mg?"warn":"bad");$(`${tag}`).textContent=good?"GOOD":mg?"MARGINAL":"BAD"}
-function showChargeSummary(s){let c=s.charges;$("chargeSummary").textContent=`Estimated taxes and exchange charges (brokerage ₹0): cash buy ${money(c.cashBuy.total)} • cash sell ${money(c.cashSell.total)} • futures sell ${money(c.futureSell.total)} • futures buy ${money(c.futureBuy.total)} • total ${money(c.total)} (includes GST ${money(c.gst)}). Cash sell is estimated at the current futures LTP; add DP or other broker-specific costs above if applicable.`}
-function clearDecision(){["fd","sav"].forEach(x=>{$(`${x}Box`).className="scenario";$(`${x}Tag`).textContent="QUOTE UNAVAILABLE";$(`${x}Charges`).textContent="—";$(`${x}Eco`).textContent="—";$(`${x}Ann`).textContent="—";$(`${x}Min`).textContent="—"});$("chargeSummary").textContent="Estimated taxes and exchange charges are shown after valid spot, futures and lot-size data load. Brokerage is fixed at ₹0."}
-function calculate(){if(!state)return;let a=calc(Number($("fdRate").value||0)),b=calc(Number($("savRate").value||0));if(!a||!b){clearDecision();return}showChargeSummary(a);$("fdCharges").textContent=money(a.charges.total);$("fdEco").textContent=money(a.eco);$("fdAnn").textContent=pct(a.ann);$("fdMin").textContent=money(a.minF);draw("fd","fdTag",a);$("savCharges").textContent=money(b.charges.total);$("savEco").textContent=money(b.eco);$("savAnn").textContent=pct(b.ann);$("savMin").textContent=money(b.minF);draw("sav","savTag",b)}
-async function refreshQuote(){if($("symbol").value)await loadQuote($("symbol").value)}
-async function runScan(){
- try{
-  let expiry=$("scanExpiry").value,label=expiry||"front-month";$("scanStatus").textContent=`Scanning ${label} stock futures via Kotak Neo…`;
-  let j=await api("/api/scan"+(expiry?"?expiry="+encodeURIComponent(expiry):"")),h=Number($("scanHurdle").value||0),fdRate=Number($("fdRate").value||0);
-  let rows=(j.data||[]).map(r=>({r,economics:evaluateTrade(r.spot,r.future,r.lot_size,r.expiry,fdRate)})).sort((a,b)=>(b.economics?.ann??-Infinity)-(a.economics?.ann??-Infinity)),html="";
-  rows.forEach(({r,economics})=>{let sig=!economics?"BAD":economics.eco>0&&economics.ann>=h?"GOOD":economics.eco>0?"WATCH":"BAD",klass=sig==="GOOD"?"gb":sig==="WATCH"?"yb":"rb",args=`${JSON.stringify(r.symbol)},${JSON.stringify(r.expiry)}`;html+=`<tr><td><button type="button" class="stocklink" onclick='openAnalysis(${args})' title="Open ${r.symbol} analysis">${r.symbol}</button></td><td>${money(r.spot)}</td><td>${money(r.future)}</td><td>${r.expiry}</td><td>${r.lot_size||"—"}</td><td>${money(r.basis)}</td><td>${pct(r.basis_pct)}</td><td>${economics?.days??"—"}</td><td>${pct(r.gross_ann)}</td><td>${money(economics?.charges.total)}</td><td>${pct(economics?.ann)}</td><td>${r.oi==null?"—":Number(r.oi).toLocaleString("en-IN")}</td><td>${r.volume==null?"—":Number(r.volume).toLocaleString("en-IN")}</td><td><span class="badge ${klass}">${sig}</span></td></tr>`});
-  $("scanBody").innerHTML=html||'<tr><td colspan="14">No live rows returned for this expiry.</td></tr>';$("scanStatus").textContent=`${j.count} ${label} contracts scanned • signals use FD rate ${pct(fdRate)} and net-return hurdle ${pct(h)} • ${j.updated}`;
- }catch(e){$("scanStatus").textContent=e.message}
+spot=numberOrNull(spot);future=numberOrNull(future);lot=numberOrNull(lot);
+if(spot===null||future===null||lot===null||spot<=0||future<=0||lot<=0)return null;
+let cap=spot*lot;
+let td=dv("tradeDate")||new Date(),ed=new Date(expiry+"T00:00:00"),days=Math.max(1,Math.ceil((ed-td)/86400000));
+let gross=(future-spot)*lot,additional=Number($("costs").value||0),div=Number($("dividend").value||0),hc=Number($("divHaircut").value||0),dd=dv("divDate"),charges=mandatoryCharges(spot,future,lot,td);
+let divNet=div>0&&dd&&dd<=ed?div*lot*(1-hc/100):0,totalCost=charges.total+additional,pre=gross+divNet-totalCost,opp=cap*rate/100*days/365,eco=pre-opp,ann=eco/cap*365/days*100;
+let hurdle=Number($("hurdle").value||0),needEco=cap*hurdle/100*days/365,fixedCost=charges.cashBuy.total+additional,minF=(spot*lot+needEco-divNet+fixedCost)/(lot*(1-charges.futureNotionalRate));
+return{eco,ann,minF,days,charges,additional};
 }
-async function runDiagnostics(){try{let j=await fetch("/api/diagnostics"),x=await j.json();$("diag").textContent=JSON.stringify(x,null,2)}catch(e){$("diag").textContent=e.message}}
-today();loadStocks();
+function calc(rate){if(!state||!state.futures.length)return null;let f=state.futures[Number($("expiry").value||0)];return evaluateTrade(state.spot,f.ltp,f.lot_size,f.expiry,rate)}
+
+/* ---------- signals ---------- */
+function sigClass(sig){return sig==="GOOD"?"s-good":(sig==="WATCH"||sig==="MARGINAL")?"s-watch":"s-bad"}
+function sigIcon(sig){return sig==="GOOD"?"✓":sig==="BAD"?"✕":"●"}
+function sigLabel(sig){return sig==="GOOD"?"POSITIVE EDGE":(sig==="WATCH"||sig==="MARGINAL")?"SMALL EDGE":"NO EDGE"}
+function sigHtml(sig){return '<span class="sig '+sigClass(sig)+'">'+sigIcon(sig)+" "+sigLabel(sig)+'</span>'}
+function setSig(el,label){el.className="sig "+sigClass(label);el.textContent=sigIcon(label)+" "+sigLabel(label)}
+function draw(box,tag,s){
+let h=Number($("hurdle").value||0),good=s.eco>0&&s.ann>=h,mg=s.eco>0&&!good;
+$(box+"Box").className="scenario "+(good?"good":mg?"warn":"bad");
+let label=good?"GOOD":mg?"MARGINAL":"BAD";
+setSig($(tag),label);
+}
+function showChargeSummary(s){
+let c=s.charges;
+$("cBuy").textContent=money(c.cashBuy.total);
+$("cSell").textContent=money(c.cashSell.total);
+$("cFSell").textContent=money(c.futureSell.total);
+$("cFBuy").textContent=money(c.futureBuy.total);
+$("cGst").textContent=money(c.gst);
+$("cTotal").textContent=money(c.total);
+}
+function clearDecision(){
+["fd","sav"].forEach(x=>{
+$(x+"Box").className="scenario";
+let tag=$(x+"Tag");tag.className="sig";tag.textContent="—";
+$(x+"Charges").textContent="—";$(x+"Eco").textContent="—";$(x+"Ann").textContent="—";$(x+"Min").textContent="—";
+$(x+"Win").hidden=true;
+});
+$("heroAnn").textContent="—";
+$("heroNote").textContent="";
+$("heroEco").textContent="—";
+$("heroMin").textContent="—";
+$("heroBox").className="hero";
+let rt=$("resultTag");rt.className="sig";rt.textContent="—";
+["cBuy","cSell","cFSell","cFBuy","cGst","cTotal"].forEach(id=>$(id).textContent="—");
+}
+function calculate(){
+if(!state)return;
+let a=calc(Number($("fdRate").value||0)),b=calc(Number($("savRate").value||0));
+if(!a||!b){clearDecision();return}
+showChargeSummary(a);
+$("fdCharges").textContent=money(a.charges.total);
+$("fdEco").textContent=money(a.eco);
+$("fdAnn").textContent=pct(a.ann);
+$("fdMin").textContent=money(a.minF);
+draw("fd","fdTag",a);
+$("savCharges").textContent=money(b.charges.total);
+$("savEco").textContent=money(b.eco);
+$("savAnn").textContent=pct(b.ann);
+$("savMin").textContent=money(b.minF);
+draw("sav","savTag",b);
+let h=Number($("hurdle").value||0);
+let good=a.eco>0&&a.ann>=h,mg=a.eco>0&&!good;
+setSig($("resultTag"),good?"GOOD":mg?"MARGINAL":"BAD");
+$("heroAnn").innerHTML=signedPct(a.ann);
+$("heroEco").textContent=money(a.eco);
+$("heroMin").textContent=money(a.minF);
+$("heroBox").className="hero "+(good?"good":mg?"warn":"bad");
+$("heroNote").textContent="≈ "+money(Math.abs(a.eco))+(a.eco>=0?" profit":" loss")+" over "+a.days+" days · "+pct(a.ann)+" per year vs your "+pct(Number($("fdRate").value||0))+" FD";
+$("fdWin").hidden=a.ann<b.ann;
+$("savWin").hidden=b.ann<=a.ann;
+}
+async function refreshQuote(){
+let sym=$("symbol").value;
+if(!sym){toast("Pick a stock first","info");return}
+let btn=$("refBtn");
+busy(btn,true,"Refreshing…");
+try{await loadQuote(sym)}finally{busy(btn,false)}
+}
+
+/* ---------- scanner ---------- */
+function toggleDetail(btn){
+let tr=btn.closest("tr");
+let d=tr&&tr.nextElementSibling;
+if(!d||!d.classList.contains("detail"))return;
+let willOpen=d.classList.contains("hidden");
+d.classList.toggle("hidden");
+btn.setAttribute("aria-expanded",String(willOpen));
+}
+function applyFilterUI(f){document.querySelectorAll(".chip").forEach(c=>c.classList.toggle("active",c.dataset.f===f))}
+function setFilter(f){scanFilter=f;applyFilterUI(f);saveScanPrefs();if(scanRows.length)renderScan()}
+function updateSummary(){
+let el=$("scanSummary");
+if(!scanRows.length){el.classList.add("hidden");el.innerHTML="";return;}
+let h=Number($("scanHurdle").value||0);
+let withEco=scanRows.filter(x=>x.economics);
+let good=withEco.filter(x=>x.economics.eco>0&&x.economics.ann>=h).length;
+let watch=withEco.filter(x=>x.economics.eco>0&&x.economics.ann<h).length;
+let best=null;
+withEco.forEach(x=>{if(x.economics.eco>0&&(!best||x.economics.ann>best.economics.ann))best=x;});
+let bestHtml=best?('<span class="best">Best: <button type="button" class="sumlk" data-open="'+best.r.symbol+'" data-open-exp="'+(best.r.expiry||"")+'" title="Open detailed analysis">'+best.r.symbol+'</button> '+pct(best.economics.ann)+' ann.</span>'):'<span>No trade beats your target yet</span>';
+el.classList.remove("hidden");
+el.innerHTML='<span><b>'+scanRows.length+'</b> contracts scanned</span><span><b>'+good+'</b> beat your '+pct(h)+' target</span><span><b>'+watch+'</b> positive but below target</span>'+bestHtml;
+}
+function econVal(x,prop){let e=x.economics;let v=e?e[prop]:null;return (typeof v==="number"&&isFinite(v))?v:null}
+function rowVal(x,prop){let r=x.r;let v=r?r[prop]:null;return (typeof v==="number"&&isFinite(v))?v:null}
+function makeCmp(getter,asc){return function(a,b){let av=getter(a),bv=getter(b);if(av===null&&bv===null)return 0;if(av===null)return 1;if(bv===null)return -1;return asc?av-bv:bv-av;}}
+function renderScan(){
+let sort=$("scanSort").value;
+let rows=scanRows.filter(x=>scanFilter==="all"||(x.sig||"BAD").toLowerCase()===scanFilter);
+if(sort==="net-desc")rows=rows.slice().sort(makeCmp(x=>econVal(x,"ann"),false));
+else if(sort==="net-asc")rows=rows.slice().sort(makeCmp(x=>econVal(x,"ann"),true));
+else if(sort==="days")rows=rows.slice().sort(makeCmp(x=>econVal(x,"days"),true));
+else if(sort==="basis")rows=rows.slice().sort(makeCmp(x=>rowVal(x,"basis_pct"),false));
+let html="";
+rows.forEach(item=>{
+let r=item.r,e=item.economics;
+html+='<tr>'+
+'<td class="col-x"><button type="button" class="xbtn" aria-expanded="false" title="More details" onclick="toggleDetail(this)"><span class="chev">▾</span></button></td>'+
+'<td class="l" data-label="Stock"><button type="button" class="stocklink" onclick="openAnalysis(\''+r.symbol+'\',\''+r.expiry+'\')" title="Open detailed analysis">'+r.symbol+'</button></td>'+
+'<td data-label="Net annualized">'+pct(e?e.ann:null)+'</td>'+
+'<td data-label="Basis %">'+pct(r.basis_pct)+'</td>'+
+'<td data-label="Days">'+(e?e.days:"—")+'</td>'+
+'<td class="hide-m" data-label="Spot">'+money(r.spot)+'</td>'+
+'<td class="hide-m" data-label="Future">'+money(r.future)+'</td>'+
+'<td data-label="Signal">'+sigHtml(item.sig||"BAD")+'</td>'+
+'</tr>'+
+'<tr class="detail hidden"><td colspan="8"><div class="detail-grid">'+
+'<div><small>Lot size</small><b>'+(r.lot_size===null||r.lot_size===undefined?"—":Number(r.lot_size).toLocaleString("en-IN"))+'</b></div>'+
+'<div><small>Basis / share</small><b>'+money(r.basis)+'</b></div>'+
+'<div><small>Gross annualized</small><b>'+pct(r.gross_ann)+'</b></div>'+
+'<div><small>Est. charges (1 lot)</small><b>'+money(e?e.charges.total:null)+'</b></div>'+
+'<div><small>Open interest</small><b>'+(r.oi===null||r.oi===undefined?"—":Number(r.oi).toLocaleString("en-IN"))+'</b></div>'+
+'<div><small>Volume</small><b>'+(r.volume===null||r.volume===undefined?"—":Number(r.volume).toLocaleString("en-IN"))+'</b></div>'+
+'</div></td></tr>';
+});
+if(!rows.length){
+$("scanBody").innerHTML='<tr><td colspan="8" class="empty-cell">No '+(scanFilter==="all"?"":({good:"positive edge",watch:"small edge",bad:"no edge"}[scanFilter]||"")+" ")+'contracts in this scan yet. Try another expiry or refresh the data.</td></tr>';
+}else{
+$("scanBody").innerHTML=html;
+}
+$("scanCount").textContent=rows.length+" of "+scanRows.length+" contracts";
+updateSummary();
+}
+async function runScan(){
+let btn=$("scanBtn");
+busy(btn,true,"Scanning…");
+try{
+let expiry=$("scanExpiry").value,label=expiry||"front-month";
+$("scanStatus").classList.remove("err");
+$("scanStatus").textContent="Scanning "+label+" stock futures via Kotak Neo…";
+let j=await api("/api/scan"+(expiry?"?expiry="+encodeURIComponent(expiry):""));
+let h=Number($("scanHurdle").value||0),fdRate=Number($("fdRate").value||0);
+scanRows=(j.data||[]).map(r=>{
+let economics=evaluateTrade(r.spot,r.future,r.lot_size,r.expiry,fdRate);
+let sig=!economics?"BAD":(economics.eco>0&&economics.ann>=h)?"GOOD":economics.eco>0?"WATCH":"BAD";
+return{r,economics,sig};
+});
+renderScan();
+setUpdated(j.updated);
+$("scanStatus").textContent=j.count+" "+label+" contracts · signals use FD "+pct(fdRate)+" and target "+pct(h)+" · "+j.updated;
+toast(j.count+" contracts scanned","good");
+}catch(e){
+$("scanStatus").textContent=e.message;
+$("scanStatus").classList.add("err");
+toast(e.message,"bad");
+}finally{busy(btn,false)}
+}
+async function openAnalysis(symbol,expiry){
+showTab("single");
+selectedExpiry=expiry||null;
+let sym=String(symbol).toUpperCase();
+if(!stockList.length)await loadStocks({silent:true,noSelect:true});
+$("symbol").value=sym;
+$("stockInput").value=sym;
+await loadQuote(sym);
+$("single").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* ---------- diagnostics ---------- */
+async function runDiagnostics(){
+try{
+let j=await fetch("/api/diagnostics"),x=await j.json();
+$("diag").textContent=JSON.stringify(x,null,2);
+}catch(e){$("diag").textContent=e.message}
+}
+
+/* ---------- init ---------- */
+function init(){
+initTheme();
+restoreSettings();
+restoreScanPrefs();
+if(!$("tradeDate").value)setToday();
+initCombo();
+let tab=null;try{tab=localStorage.getItem("caa:tab")}catch(e){}
+if(tab==="single")showTab("single");
+$("expiry").addEventListener("change",e=>setContract(e.target.value));
+$("scan").addEventListener("click",e=>{let b=e.target.closest("[data-open]");if(b)openAnalysis(b.dataset.open,b.dataset.openExp||null)});
+$("scanHurdle").addEventListener("input",()=>{if(scanRows.length)updateSummary()});
+let seenHowto=null;try{seenHowto=localStorage.getItem("caa:howto")}catch(e){}
+if(!seenHowto){$("howto").open=true;try{localStorage.setItem("caa:howto","1")}catch(e){}}
+["costs","dividend","divHaircut","hurdle","fdRate","savRate","divDate","tradeDate"].forEach(id=>$(id).addEventListener("input",calculate));
+["costs","dividend","divHaircut","hurdle","fdRate","savRate","divDate","tradeDate","scanHurdle","scanExpiry","scanSort"].forEach(id=>{let el=$(id);if(el)el.addEventListener("input",saveSettings)});
+$("scanSort").addEventListener("change",()=>{saveScanPrefs();if(scanRows.length)renderScan()});
+loadStocks({});
+}
+init();
 </script>
 </body>
 </html>

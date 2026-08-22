@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Disclaimer · Cash-and-Carry Arbitrage Analyzer</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+color-scheme:light;
+--bg:#F7F9FC;--surface:#FFFFFF;--surface-2:#F1F5FA;
+--text:#0F172A;--muted:#475569;--faint:#64748B;
+--line:#E5EAF2;--line-2:#D3DCE9;
+--accent:#2F6FED;--accent-ink:#FFFFFF;--accent-soft:#EDF3FE;
+--warn:#9A5B00;--warn-bg:#FBF1DD;--warn-line:#EBD3A4;
+--r-md:12px;--r-lg:16px;
+--sh-sm:0 1px 2px rgba(16,24,40,.05);
+--ease:160ms ease-out;
+}
+[data-theme="dark"]{
+color-scheme:dark;
+--bg:#0B1120;--surface:#101A2E;--surface-2:#0D1526;
+--text:#E7EDF6;--muted:#9FB0C7;--faint:#7C8DA6;
+--line:#22304B;--line-2:#2E405F;
+--accent:#6C9BFF;--accent-ink:#08101F;--accent-soft:#16264A;
+--warn:#F2B84B;--warn-bg:#2E2310;--warn-line:#4E3D1D;
+--sh-sm:0 1px 2px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 Inter,"Segoe UI",system-ui,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:24px 16px 60px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.brand{display:flex;gap:12px;align-items:flex-start}
+.logo{width:42px;height:42px;border-radius:12px;background:var(--accent);color:var(--accent-ink);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:800;flex:none}
+h1{margin:0;font-size:23px;font-weight:800;letter-spacing:-.02em}
+h2{font-size:16px;margin:0;font-weight:700}
+h3{font-size:14px;margin:0 0 6px;font-weight:700}
+.sub{margin:4px 0 0;color:var(--muted);font-size:14px}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--text);font-size:15px;cursor:pointer;transition:background var(--ease),border-color var(--ease)}
+.icon-btn:hover{border-color:var(--line-2);background:var(--surface-2)}
+.banner{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:var(--r-md);padding:14px 16px;margin-bottom:16px;font-size:14px;line-height:1.6;color:var(--text)}
+.banner b{font-weight:800}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;margin-bottom:16px;box-shadow:var(--sh-sm)}
+.card p{margin:10px 0 0;color:var(--muted);font-size:14px;line-height:1.65}
+.card p b{color:var(--text)}
+.lead{font-size:14.5px;color:var(--text);line-height:1.7}
+ul{margin:10px 0 0;padding-left:20px;color:var(--muted);font-size:14px}
+li{margin:6px 0}
+li b{color:var(--text)}
+ol.clause{margin:8px 0 0;padding-left:22px;counter-reset:none}
+.clause{margin:0 0 18px}
+.clause h3{color:var(--text);font-size:14.5px;margin-bottom:4px}
+.clause h3 .num{color:var(--accent);font-weight:800;margin-right:8px}
+.clause p{margin:4px 0 0;color:var(--muted);font-size:14px;line-height:1.65}
+.clause p b{color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid transparent;border-radius:10px;padding:10px 16px;font:inherit;font-weight:700;font-size:14px;cursor:pointer;transition:background var(--ease),filter var(--ease),border-color var(--ease)}
+.btn.ghost{background:var(--surface);border-color:var(--line-2);color:var(--text)}
+.btn.ghost:hover{background:var(--surface-2)}
+.foot{margin-top:6px;font-size:12.5px;color:var(--faint);text-align:center;line-height:1.7}
+.mono{font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+<div class="brand">
+<div class="logo" aria-hidden="true">₹</div>
+<div>
+<h1>Disclaimer & Terms of Use</h1>
+<p class="sub">Cash-and-Carry Arbitrage Analyzer — informational & educational tool</p>
+</div>
+</div>
+<button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">☾</button>
+</header>
+
+<div class="banner" role="note">
+<b>Read this before using the app.</b> This tool is provided <b>solely for information and education</b>. It does <b>not</b> provide investment advice, trading calls, buy/sell recommendations, or any advisory service. The author is <b>not a SEBI-registered investment adviser, research analyst, or portfolio manager</b>.
+</div>
+
+<div class="card">
+<h2>Summary</h2>
+<p class="lead">This application is a read-only calculator and scanner. It fetches public market data (spot and futures prices) through a broker's market-data API and lets you run your own arithmetic: basis, annualized return, estimated taxes and exchange charges, opportunity cost versus a fixed deposit or savings account, and a simple mathematical comparison signal (POSITIVE EDGE / SMALL EDGE / NO EDGE).</p>
+<p>Everything it displays is an <b>estimate computed from your own inputs and third-party data</b>. It is not a statement of what will happen in the market, not a prediction, and not a suggestion that you should buy, sell, or hold any security. Cash-and-carry — like every strategy involving securities or derivatives — involves real risk, including loss of capital.</p>
+</div>
+
+<div class="card">
+<h2>Detailed disclaimer</h2>
+
+<ol class="clause">
+<li>
+<h3><span class="num">1.</span>Purpose — information & education only</h3>
+<p>This app, its calculations, its rankings, and every figure or label it produces (including net annualized returns, estimated profit/loss, break-even prices, and the POSITIVE EDGE / SMALL EDGE / NO EDGE signal) are provided <b>exclusively for informational and educational purposes</b>. They are meant to help you understand the mechanics and arithmetic of a cash-and-carry position. Nothing on this app constitutes, or should be relied upon as, investment advice, financial advice, tax advice, legal advice, accounting advice, or a solicitation or offer to buy or sell any security, equity, futures contract, option, or other financial instrument.</p>
+</li>
+
+<li>
+<h3><span class="num">2.</span>No trading calls, tips, or recommendations</h3>
+<p>The app does <b>not</b> issue trading tips, buy/sell calls, entry or exit signals, target prices, or stock recommendations. The "signal" shown is a purely mechanical comparison of your entered assumptions against a formula. It is <b>not</b> a view on the direction of any market or security, and it should not be treated as a recommendation to transact in any instrument. Any decision to trade is entirely your own, made at your own discretion and risk.</p>
+</li>
+
+<li>
+<h3><span class="num">3.</span>Not a SEBI-registered adviser; no advisory services</h3>
+<p>The author, developer, and any person or entity associated with this app is <b>not registered with the Securities and Exchange Board of India (SEBI)</b> as an investment adviser, research analyst, portfolio manager, or stockbroker, and is <b>not affiliated with SEBI</b> in any way. No advisory, research, or recommendation services are offered, directly or indirectly, by this app or its operator. Do not interpret any content here as the output of a SEBI-registered adviser. If you wish to act on any strategy, please consult a SEBI-registered investment adviser or your own broker.</p>
+</li>
+
+<li>
+<h3><span class="num">4.</span>No affiliation with or endorsement by regulators, exchanges, or data providers</h3>
+<p>This app is not associated with, endorsed by, or sponsored by <b>SEBI, NSE, BSE, Kotak Securities, or any exchange, clearing corporation, or data provider</b>. Market data is obtained through a third-party broker API under its own terms; the app operator has no control over the accuracy, timeliness, completeness, or continuity of that data, and no warranty of any kind is given or implied regarding it.</p>
+</li>
+
+<li>
+<h3><span class="num">5.</span>Estimates are not guarantees; inputs drive the output</h3>
+<p>All results are computed from (a) third-party price data that may be delayed, stale, incorrect, or inconsistent, and (b) assumptions you enter (tax rates, charge rates, dividend amounts and dates, target returns, benchmark rates). The built-in tax and charge figures are <b>estimates that may change</b> due to regulatory, exchange, or broker revisions and do not constitute tax advice. <b>Past basis levels and historical returns do not guarantee future results.</b> Actual transaction costs, taxes, dividend treatment, and outcomes may differ materially from anything displayed here.</p>
+</li>
+
+<li>
+<h3><span class="num">6.</span>Risk warning — cash-and-carry is not risk-free</h3>
+<p>Even a properly constructed cash-and-carry position can lose money. Risks include, but are not limited to: adverse movement in the underlying stock price, dividends that reduce the basis (including dividend haircuts and tax on dividends), changes in lot size, contract expiry and settlement mechanics, margin requirements, liquidity, gap risk around expiry, failure to close legs simultaneously, and any error in data or in your own assumptions. <b>You can lose part or all of the capital you deploy.</b></p>
+</li>
+
+<li>
+<h3><span class="num">7.</span>No tax or legal advice</h3>
+<p>Nothing here is tax advice. The tax treatment of cash and futures transactions — including STT, stamp duty, capital gains, and dividend income — is complex, individual-specific, and subject to change. Please consult a qualified chartered accountant or tax professional about your particular circumstances before making any financial decision.</p>
+</li>
+
+<li>
+<h3><span class="num">8.</span>Your responsibility — do your own diligence</h3>
+<p>Before placing any trade, you are solely responsible for independently verifying live quotes, contract specifications, lot sizes, expiries, exchange and broker charges, margin and settlement rules, dividend schedules, and your own eligibility and suitability. You agree to use this app in accordance with all applicable laws and your broker's terms of service, and that you will not rely on this app as your sole basis for any financial decision.</p>
+</li>
+
+<li>
+<h3><span class="num">9.</span>"As is"; limitation of liability</h3>
+<p>This app and its content are provided on an <b>"as is"</b> and <b>"as available"</b> basis, without warranties of any kind, whether express or implied, including but not limited to warranties of accuracy, reliability, fitness for a particular purpose, or non-infringement. To the maximum extent permitted by law, the author and any related party shall <b>not be liable</b> for any direct, indirect, incidental, consequential, or punitive loss, damage, or claim — including lost profits, lost opportunities, or trading losses — arising out of or in connection with your use of, or inability to use, this app or any content or results produced by it. Some jurisdictions do not allow limitations of liability, so parts of this limitation may not apply to you.</p>
+</li>
+
+<li>
+<h3><span class="num">10.</span>Changes and acceptance</h3>
+<p>The author may modify, suspend, or discontinue this app or this disclaimer at any time without notice. By accessing or using this app you acknowledge that you have read this disclaimer, understand it, and agree to be bound by it. If you do not agree, you should stop using the app.</p>
+</li>
+</ol>
+
+<h3 style="margin-top:18px">Questions</h3>
+<p>For questions about this disclaimer, contact the app author through the project's public contact channels. This disclaimer is intended to be clear and accessible; in the event of any conflict between this page and any other content on the app, the more protective interpretation for the user will be given effect, except to the extent required by applicable law.</p>
+</div>
+
+<div class="card">
+<h2>Quick facts</h2>
+<ul>
+<li><b>What it is:</b> a read-only cash-and-carry calculator and scanner.</li>
+<li><b>What it is not:</b> investment advice, a trading tip, a recommendation, or a SEBI-registered advisory service.</li>
+<li><b>Data source:</b> third-party broker market-data API; provided without warranty.</li>
+<li><b>Your duty:</b> verify everything independently and consult a SEBI-registered adviser or broker before trading.</li>
+<li><b>Risk:</b> you can lose money; past performance does not guarantee future results.</li>
+</ul>
+</div>
+
+<div class="card" style="text-align:center">
+<a class="btn ghost" href="/">← Back to the app</a>
+</div>
+
+<footer class="foot">
+Informational & educational use only · Not investment advice · Not a SEBI-registered adviser.<br>
+This page is part of the Cash-and-Carry Arbitrage Analyzer and is provided for the user's own reference.
+</footer>
+
+</div>
+
+<script>
+function initTheme(){let saved=null;try{saved=localStorage.getItem("caa:theme")}catch(e){}let t=saved||((window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light");applyTheme(t)}
+function applyTheme(t){document.documentElement.dataset.theme=t;let b=document.getElementById("themeBtn");if(b)b.textContent=t==="dark"?"☀":"☾";try{localStorage.setItem("caa:theme",t)}catch(e){}}
+function toggleTheme(){applyTheme(document.documentElement.dataset.theme==="dark"?"light":"dark")}
+initTheme();
+</script>
+</body>
+</html>
